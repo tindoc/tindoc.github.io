@@ -1,23 +1,8 @@
-baseurl: https://example.com
-languageCode: en-us
+baseurl: https://tindoc.github.io
+languageCode: zh-ch
 theme: stack
 paginate: 5
-title: Example Site
-
-languages:
-    en:
-        languageName: English
-        title: Example Site
-        weight: 1
-    zh-cn:
-        languageName: 中文
-        title: 演示站点
-        weight: 2
-    ar:
-        languageName: عربي
-        languagedirection: rtl
-        title: موقع تجريبي
-        weight: 3
+title: Tindoc's Blog
 
 # Change it to your Disqus shortname before using
 disqusShortname: hugo-theme-stack
@@ -54,11 +39,11 @@ params:
 
     sidebar:
         emoji: 🍥
-        subtitle: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        subtitle: Concept, Teach, Review, Simplify.
         avatar:
             enabled: true
             local: true
-            src: img/avatar.png
+            src: avator.jpg
 
     article:
         math: false
@@ -69,71 +54,8 @@ params:
             default: Licensed under CC BY-NC-SA 4.0
 
     comments:
-        enabled: true
-        provider: disqus
-
-        disqusjs:
-            shortname:
-            apiUrl:
-            apiKey:
-            admin:
-            adminLabel:
-
-        utterances:
-            repo:
-            issueTerm: pathname
-            label:
-
-        remark42:
-            host:
-            site:
-            locale:
-
-        vssue:
-            platform:
-            owner:
-            repo:
-            clientId:
-            clientSecret:
-            autoCreateIssue: false
-
-        # Waline client configuration see: https://waline.js.org/en/reference/component.html
-        waline:
-            serverURL:
-            lang:
-            pageview:
-            emoji:
-                - https://unpkg.com/@waline/emojis@1.0.1/weibo
-            requiredMeta:
-                - name
-                - email
-                - url
-            locale:
-                admin: Admin
-                placeholder:
-
-        twikoo:
-            envId:
-            region:
-            path:
-            lang:
-
-        # See https://cactus.chat/docs/reference/web-client/#configuration for description of the various options
-        cactus:
-            defaultHomeserverUrl: "https://matrix.cactus.chat:8448"
-            serverName: "cactus.chat"
-            siteName: "" # You must insert a unique identifier here matching the one you registered (See https://cactus.chat/docs/getting-started/quick-start/#register-your-site)
-
-        giscus:
-            repo:
-            repoID:
-            category:
-            categoryID:
-            mapping:
-            lightTheme:
-            darkTheme:
-            reactionsEnabled: 1
-            emitMetadata: 0
+        enabled: false
+        provider: gitalk
 
         gitalk:
             owner:
@@ -141,10 +63,6 @@ params:
             repo:
             clientID:
             clientSecret:
-
-        cusdis:
-            host:
-            id:
     widgets:
         homepage:
             - type: search
@@ -196,15 +114,9 @@ menu:
     social:
         - identifier: github
           name: GitHub
-          url: https://github.com/CaiJimmy/hugo-theme-stack
+          url: https://github.com/tindoc
           params:
               icon: brand-github
-
-        - identifier: twitter
-          name: Twitter
-          url: https://twitter.com
-          params:
-              icon: brand-twitter
 
 related:
     includeNewer: true
