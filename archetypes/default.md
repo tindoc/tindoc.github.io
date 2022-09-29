@@ -5,8 +5,7 @@ date: {{ .Date }}
 draft: false
 
 image: 
-math: 
+tags: []
+categories: []
 license: CC BY-NC-ND
-hidden: false
-comments: false
 ---
