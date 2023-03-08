@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha256-/4UQcSmErDzPCMAiuOiWPVVsNN2s3ZY/NsmXNcj0IFc=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tindoc.github.com","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.15.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Timeline 时间线">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 实践">
+<meta property="og:url" content="https://tindoc.github.com/20230306211546/index.html">
+<meta property="og:site_name" content="Tindoc">
+<meta property="og:description" content="Timeline 时间线">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.edrawsoft.cn/images/orgcharting/images/yidonggs.png">
+<meta property="article:published_time" content="2023-03-06T13:15:46.000Z">
+<meta property="article:modified_time" content="2023-03-07T15:56:21.042Z">
+<meta property="article:author" content="Tindoc">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="中间件">
+<meta property="article:tag" content="db">
+<meta property="article:tag" content="实践">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.edrawsoft.cn/images/orgcharting/images/yidonggs.png">
+
+
+<link rel="canonical" href="https://tindoc.github.com/20230306211546/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://tindoc.github.com/20230306211546/","path":"20230306211546/","title":"Redis 实践"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Redis 实践 | Tindoc</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Tindoc</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Tindoc's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Timeline-%E6%97%B6%E9%97%B4%E7%BA%BF"><span class="nav-number">1.</span> <span class="nav-text">Timeline 时间线</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Leaderboard-amp-ranking-%E6%8E%92%E8%A1%8C%E6%A6%9C"><span class="nav-number">2.</span> <span class="nav-text">Leaderboard &amp; ranking 排行榜</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UV-amp-DAU-amp-MAU-%E7%8B%AC%E7%AB%8B%E8%AE%BF%E5%AE%A2%EF%BC%8C%E6%97%A5-x2F-%E6%9C%88%E6%B4%BB%E8%B7%83%E7%94%A8%E6%88%B7%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">UV &amp; DAU &amp; MAU 独立访客，日&#x2F;月活跃用户数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rate-Limiter-%E9%99%90%E6%B5%81"><span class="nav-number">4.</span> <span class="nav-text">Rate Limiter 限流</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E9%95%BF%E8%BF%9E%E7%BB%AD%E7%99%BB%E5%BD%95%E5%A4%A9%E6%95%B0"><span class="nav-number">5.</span> <span class="nav-text">最长连续登录天数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%88%E7%AD%BE%E5%88%B0"><span class="nav-number">6.</span> <span class="nav-text">月签到</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AC%E5%8F%B8%E9%83%A8%E9%97%A8%E6%9E%B6%E6%9E%84%E4%BF%A1%E6%81%AF"><span class="nav-number">7.</span> <span class="nav-text">公司部门架构信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E7%AB%A0-tag"><span class="nav-number">8.</span> <span class="nav-text">文章 tag</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">9.</span> <span class="nav-text">其他</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Tindoc</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://tindoc.github.com/20230306211546/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Tindoc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tindoc">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Redis 实践 | Tindoc">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis 实践
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-03-06 21:15:46" itemprop="dateCreated datePublished" datetime="2023-03-06T21:15:46+08:00">2023-03-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-03-07 23:56:21" itemprop="dateModified" datetime="2023-03-07T23:56:21+08:00">2023-03-07</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="Timeline-时间线"><a href="#Timeline-时间线" class="headerlink" title="Timeline 时间线"></a>Timeline 时间线</h3><p>Twitter 有两个 timeline，一个是已关注的人的 timeline（又叫 home timeline），一个是自己发的推的 timeline（又叫 user timeline）</p>
+<p>现在需要处理的是 home timeline（推模式），即大 V 发推之后，需要把这些推推送到这个大 V 的粉丝 home timeline 中</p>
+<p>使用 list</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">fanout</span></span><br><span class="line">lpush user:1:htimeline toString(&#123;&quot;tid&quot;: &quot;推 ID&quot;, &quot;uid&quot;: &quot;大 V ID&quot;, &quot;meta&quot;: &quot;元数据&quot;&#125;)</span><br><span class="line">lpush user:2:htimeline toString(&#123;&quot;tid&quot;: &quot;推 ID&quot;, &quot;uid&quot;: &quot;大 V ID&quot;, &quot;meta&quot;: &quot;元数据&quot;&#125;)</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">用户刷新 home timeline</span></span><br><span class="line">lrange user:1:htimeline 0 9</span><br><span class="line">lrange user:2:htimeline 0 9</span><br></pre></td></tr></table></figure>
+
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://karmi.github.io/redis_twitter_example/">Redis Twitter Example: An Executable Tutorial</a> 比较完整的实现（包括用户关注这些逻辑）</li>
+<li><a target="_blank" rel="noopener" href="https://redis.com/ebook/part-2-core-concepts/chapter-8-building-a-simple-social-network/8-2-home-timeline/">Home timeline</a> <strong>使用 sorted set 实现</strong></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/TongWaccs/article/details/112103484">系统设计面试题-实现Twitter时间线和搜索</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/22687386">Twitter的Timeline是怎样服务数亿用户的？</a> 简介</li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wjfz/p/5367446.html">Redis实现Timeline</a></li>
+</ul>
+<h3 id="Leaderboard-amp-ranking-排行榜"><a href="#Leaderboard-amp-ranking-排行榜" class="headerlink" title="Leaderboard &amp; ranking 排行榜"></a>Leaderboard &amp; ranking 排行榜</h3><p>使用 sorted set</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加新用户</span></span><br><span class="line">zadd lb:bname1 0 user1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更新分数（重新 add 或者 incr）</span></span><br><span class="line">zadd lb:bname1 3 user1</span><br><span class="line">zincrby lb:bname1 3 user1 </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看 top 10</span></span><br><span class="line">zrevrange lb:bname1 0 9 [withscores]</span><br></pre></td></tr></table></figure>
+
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://developer.redis.com/howtos/leaderboard/">How to build a Real-Time Leaderboard app Using Redis</a> <strong>这里提供了很多例子</strong></li>
+<li><a target="_blank" rel="noopener" href="https://redis.com/solutions/use-cases/leaderboards/">Real-time leaderboard &amp; ranking solutions</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_30285985/article/details/112382087">【开发经验】redis排行榜功能（日榜、周榜、月榜）</a> <ul>
+<li>需要初始化这些榜单，key 可以参考：dayrank:yyyy-MM-dd, weekrank:yyyy-MM-dd, monthrank:yyyy-MM</li>
+<li>可以使用 <a target="_blank" rel="noopener" href="https://redis.io/commands/zunionstore/"><code>z-union-store</code></a> 来根据日实时计算周、月</li>
+<li>什么时候计算也有多种方案：<ul>
+<li>每次更新日榜的时候同时更新周、月（此时不一定要用 zunionstore）。缺：压力大</li>
+<li>查询周、月的时候再实时计算。缺：压力也大</li>
+<li>根据业务上的要求使用后台任务计算周、月（例如：业务要求周日再计算周榜，月尾计算月榜）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_37459380/article/details/82971525">Redis实现排行榜功能(实战)</a> Java + Spring 实现</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/lvyangxue/article/details/125254806">redis实现排行榜（日榜，周榜，月榜）</a> Java+Spring+RedisTempalte</li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903736918147080">想知道谁是你的最佳用户？基于Redis实现排行榜周期榜与最近N期榜</a> Redis + Lua 实现</li>
+</ul>
+<h3 id="UV-amp-DAU-amp-MAU-独立访客，日-x2F-月活跃用户数"><a href="#UV-amp-DAU-amp-MAU-独立访客，日-x2F-月活跃用户数" class="headerlink" title="UV &amp; DAU &amp; MAU 独立访客，日&#x2F;月活跃用户数"></a>UV &amp; DAU &amp; MAU 独立访客，日&#x2F;月活跃用户数</h3><p>UV(Unique Visitor) &amp; DAU(Daily Active Users) &amp; MAU(Monthly Active Users) </p>
+<p>需要考虑用户数量、用户 ID 特性、业务是否只是需要数目而不是具体的人</p>
+<p>sorted set 使用条件：</p>
+<ul>
+<li>unique id</li>
+<li>几乎没有什么条件，只是会浪费一些空间而已</li>
+<li>可以查询出都是哪些用户</li>
+</ul>
+<p>bitmap 使用条件：</p>
+<ul>
+<li><p>unique id</p>
+</li>
+<li><p>ID 需要自增。能映射到 bitmap 中</p>
+<p>  如果不是，可以考虑注册时间（需唯一）。假设精确到秒，注册时间减平台上线时间，一个 key 可以保存 49710 个用户（(2^32)&#x2F;(24<em>60</em>60)），再用多个 key 解决其他问题</p>
+</li>
+<li><p>用户最多只有 40 亿（2^32 个 bit）。实际上可以使用多个 key 来突破这个限制</p>
+</li>
+</ul>
+<p>hyperloglog 使用条件：</p>
+<ul>
+<li>unique id</li>
+<li>只在乎数目，不在乎具体是谁</li>
+<li>允许有误差。HLL 本来就有误差</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">用户登录</span></span><br><span class="line">sadd dau:todayDate &lt;uniqueID&gt;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看今天登录的所有用户</span></span><br><span class="line">smembers dau:todayDate</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看今天登录的用户数</span></span><br><span class="line">scard dau:todayDate</span><br></pre></td></tr></table></figure>
+
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://joshtronic.com/2022/03/13/tracking-daily-active-users-with-redis/">Tracking daily active users (DAU) with Redis</a></li>
+<li><a target="_blank" rel="noopener" href="https://joshtronic.com/2015/09/13/bitmaps-vs-sets-to-track-monthly-active-users-in-redis/">Bitmaps vs. Sets to track Monthly Active Users in Redis</a> 没什么含量</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/agonie201218/article/details/108988577">用户日活月活怎么统计 - Redis HyperLogLog 详解</a> 有对比，有 HLL 的原理</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/boxrq1/article/details/114686938">Redis高级类型(统计全站访问量，日活跃用户)</a></li>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1702472">Redis点赞新思路 bitmap</a> 最后提到了 UUID 和数据超过 40 亿的处理方法</li>
+</ul>
+<h3 id="Rate-Limiter-限流"><a href="#Rate-Limiter-限流" class="headerlink" title="Rate Limiter 限流"></a>Rate Limiter 限流</h3><p>非滑动窗口模式（滑动窗口需要记得每秒的访问次数），算是固定窗口模式</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置 10 s 内只允许 15 个请求（固定窗口）</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">每次访问都需要执行</span></span><br><span class="line">set rate-limiter:127.0.0.1 15 NX EX 10</span><br><span class="line">get rate-limiter:127.0.0.1 # 为 0 则阻止访问，否则</span><br><span class="line">decr rate-limiter:127.0.0.1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">滑动窗口的简单实现。缺：需要定期修剪 sorted <span class="built_in">set</span></span></span><br><span class="line">zadd limit:127.0.0.1 currentSecondTime currentSecondTime</span><br><span class="line">zrangebyscore limit:127.0.0.1 (currentSecontTime - 窗口时间) currentSecondTime # 查看 size 是否符合请求数</span><br><span class="line">zremrangebyscore limit:127.0.0.1 -inf ((currentSecontTime - 窗口时间)  # 第一个 ( 表示不取到当前值</span><br></pre></td></tr></table></figure>
+
+<p>参考：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://developer.redis.com/howtos/ratelimiting/">How to build a Rate Limiter using Redis</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/lmx125254/article/details/90700118">Redis 实现限流的三种方式</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/7015853473749024776">架构师如何讲解Redis限流——滑动窗口限流 </a></li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/kyFAWH3mVNJvurQDt4vchA">我司用了 6 年的 Redis 分布式限流器，可以说是非常厉害了！</a></li>
+</ul>
+<h3 id="最长连续登录天数"><a href="#最长连续登录天数" class="headerlink" title="最长连续登录天数"></a>最长连续登录天数</h3><p>使用 bitmap 的 bitpos 操作</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">登录的时候</span></span><br><span class="line">setbit login:user1 (currentDay - websitePulishDay) 1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查找最长连续登录天数</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1. 先找到第一个登录记录</span></span><br><span class="line">bitpos login:user1 1</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2. 找到第一个登录记录之后的第一个不登陆记录</span></span><br><span class="line">bitpos login:user1 0 (上一条指令的返回值)</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">3. 计算连续</span></span><br><span class="line">(2 返回结果) - (1 返回结果)</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4. 继续寻找</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试数据 0111 1011 0000 1100（Redis 7.0 才有效，因为 bit 参数）</span></span><br><span class="line">set login:user1 &quot;\x7b\x0c&quot;</span><br><span class="line">bitpos login:user1 1</span><br><span class="line">bitpos login:user1 0 1 -1 BIT</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">5 - 1 = 4</span></span><br><span class="line">bitpos login:user1 1 5 -1 BIT</span><br></pre></td></tr></table></figure>
+
+<h3 id="月签到"><a href="#月签到" class="headerlink" title="月签到"></a>月签到</h3><p>使用 bitmap</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">用户1月6号签到</span></span><br><span class="line">SETBIT u:sign:1225:202101 5 1 # 偏移量是从0开始，所以要把6减1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">检查1月6号是否签到</span></span><br><span class="line">GETBIT u:sign:1225:202101 5 # 偏移量是从0开始，所以要把6减1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">统计1月份的签到次数</span></span><br><span class="line">BITCOUNT u:sign:1225:202101</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取1月份前31天的签到数据</span></span><br><span class="line">BITFIELD u:sign:1225:202101 get u31 0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取1月份首次签到的日期</span></span><br><span class="line">BITPOS u:sign:1225:202101 1 # 返回的首次签到的偏移量，返回值位索引，加 1 即为当月的几号</span><br></pre></td></tr></table></figure>
+
+<p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/liang24/p/14449835.html">Redis实战篇（二）基于Bitmap实现用户签到功能</a></p>
+<h3 id="公司部门架构信息"><a href="#公司部门架构信息" class="headerlink" title="公司部门架构信息"></a>公司部门架构信息</h3><p><img src="https://www.edrawsoft.cn/images/orgcharting/images/yidonggs.png" alt="架构图"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加部门架构</span></span><br><span class="line">sadd dep:董事会 dep:总经办</span><br><span class="line">sadd dep:总经办 dep:行政中心 dep:技术中心 dep:运营中心 dep:营销中心</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">...</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加部门人员</span></span><br><span class="line">sadd dep:董事会:per 1 2 3</span><br><span class="line">sadd dep:技术中心:per 4 5 6 7 8</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">...</span></span><br></pre></td></tr></table></figure>
+
+<p>另一种使用 list 的 <a target="_blank" rel="noopener" href="https://blog.csdn.net/thanksm1/article/details/101972919">存法</a> ：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这种结构在 Redis GUI 中看起来就像是树结构</span></span><br><span class="line">rpush dep:董事会 1 2 3 </span><br><span class="line">rpush dep:董事会:总经办:技术中心 4 5 6 7 8</span><br><span class="line">rpush dep:董事会:总经办:技术中心:研发部 4 5</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">但是查询必须带上完整的架构路径。不建议使用模糊 key，然后再查的方法</span></span><br><span class="line">key dep:*研发部</span><br><span class="line">lrange &lt;准确 key&gt; 0 -1</span><br></pre></td></tr></table></figure>
+
+<p>貌似需要考量很多东西来判断</p>
+<ul>
+<li>后端数据据是怎么存储的</li>
+<li>前端的需求是什么？是否需要查看比某个部门高级的所有部门（或者换成人，查看该人的所有领导（非直接））</li>
+<li>考虑使用 Redis 拓展？<a target="_blank" rel="noopener" href="https://github.com/shimohq/ioredis-tree">ioredis-tree</a></li>
+</ul>
+<p>数据库保存树结构的方法（前四个强推）：</p>
+<ul>
+<li>大致方法：保存 pid；保存路径；关联表保存；MPT</li>
+<li><a target="_blank" rel="noopener" href="https://drib.tech/programming/hierarchical-data-in-relational-databases">Hierarchical Data in Relational Databases - drib</a></li>
+<li><a target="_blank" rel="noopener" href="http://download.nust.na/pub6/mysql/tech-resources/articles/hierarchical-data.html">MySQL :: Managing Hierarchical Data in MySQL</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.baeldung.com/cs/storing-tree-in-rdb">Storing a Tree Structure in a Relational Database | Baeldung on Computer Science</a></li>
+<li><a target="_blank" rel="noopener" href="https://segmentfault.com/q/1010000000126370">数据库 - 树状结构的数据表如何设计? - SegmentFault 思否</a></li>
+<li><a target="_blank" rel="noopener" href="https://cn.bing.com/search?form=MOZCON&pc=MOZI&q=Hierarchical+to+relational+database+migration">Hierarchical to relational database migration - Search</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Trista_1999/article/details/109100795">MySQL：如何将树形结构存储在数据库中_数据库存储树形结构的数据_劰的劰的博客-CSDN博客</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/vinozly/p/7419807.html">如何在数据库中存储一棵树 - VinoZhu - 博客园</a></li>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1359877">树状结构存储与读取之Modified Preorder Tree - 腾讯云开发者社区-腾讯云</a></li>
+<li><a target="_blank" rel="noopener" href="https://juejin.cn/post/7082592325133664287">聊聊mysql的树形结构存储及查询 - 掘金</a></li>
+<li><a target="_blank" rel="noopener" href="https://learn.microsoft.com/en-us/sql/relational-databases/hierarchical-data-sql-server?view=sql-server-ver16">Hierarchical Data (SQL Server) - SQL Server | Microsoft Learn</a></li>
+</ul>
+<h3 id="文章-tag"><a href="#文章-tag" class="headerlink" title="文章 tag"></a>文章 tag</h3><ul>
+<li>根据文章找到 tag</li>
+<li>根据 tag 找文章</li>
+</ul>
+<p>使用 set</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">新文章（同时更新该文章有多少 tag，以及某个 tag 下有多少文章）</span></span><br><span class="line">sadd post:1:tag 1 2 3 4 5</span><br><span class="line">sadd tag:1:post 1</span><br><span class="line">sadd tag:2:post 1</span><br><span class="line">sadd tag:3:post 1</span><br><span class="line">sadd tag:4:post 1</span><br><span class="line">sadd tag:5:post 1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取文章的 tag</span></span><br><span class="line">smembers post:1:tag</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取 tag 对应的文章</span></span><br><span class="line">smembers tag:3:post</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1867518">面试官：Redis 的常见使用场景有哪些？</a><ul>
+<li>计算出7天都在线的用户 <code>bitop and result &lt;day_1&gt; &lt;day_2&gt; ... &lt;day_7&gt;</code>（每个用户映射到一个 bit）</li>
+<li>点赞、签到、打卡 set</li>
+<li>商品筛选 sdiff sinter sunion</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/528146852">2 万字 + 20 张图｜ 细说 Redis 九种数据类型和应用场景</a><ul>
+<li>删除共享锁的时候需要确定删除操作只能是上锁客户端，可以把 client-id 存到 string 中，释放前判断一下（最好 Lua 脚本原子操作）</li>
+<li>共同关注 set 的 sinter 操作</li>
+<li>抽奖 set 的 spop 操作（事先把候选人放到 set 中，再 <code>spop &lt;key&gt; [多少个]</code> ）</li>
+<li>滴滴打车（特殊数据类型）</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://redis.com/blog/5-industry-use-cases-for-redis-developers/">Redis Use Case Examples for Developers</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+              <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag"># 中间件</a>
+              <a href="/tags/db/" rel="tag"># db</a>
+              <a href="/tags/%E5%AE%9E%E8%B7%B5/" rel="tag"># 实践</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/20230305211159/" rel="prev" title="Redis Doc">
+                  <i class="fa fa-chevron-left"></i> Redis Doc
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/20230306232533/" rel="next" title="Redis 补充">
+                  Redis 补充 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tindoc</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

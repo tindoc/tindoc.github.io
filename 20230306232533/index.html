@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha256-/4UQcSmErDzPCMAiuOiWPVVsNN2s3ZY/NsmXNcj0IFc=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tindoc.github.com","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.15.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Redis 为什么快？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis 补充">
+<meta property="og:url" content="https://tindoc.github.com/20230306232533/index.html">
+<meta property="og:site_name" content="Tindoc">
+<meta property="og:description" content="Redis 为什么快？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://javaguide.cn/assets/why-redis-so-fast.d3507ae8.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/061e2c04e0ebca3425dd75dd035b6b7b.png">
+<meta property="article:published_time" content="2023-03-06T15:25:33.000Z">
+<meta property="article:modified_time" content="2023-03-08T07:19:43.984Z">
+<meta property="article:author" content="Tindoc">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="中间件">
+<meta property="article:tag" content="db">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://javaguide.cn/assets/why-redis-so-fast.d3507ae8.png">
+
+
+<link rel="canonical" href="https://tindoc.github.com/20230306232533/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://tindoc.github.com/20230306232533/","path":"20230306232533/","title":"Redis 补充"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Redis 补充 | Tindoc</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Tindoc</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Tindoc's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%AB%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">Redis 为什么快？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis-%E6%9E%B6%E6%9E%84%E6%A8%A1%E5%BC%8F-4"><span class="nav-number">2.</span> <span class="nav-text">Redis 架构模式 * 4</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97-3"><span class="nav-number">3.</span> <span class="nav-text">Redis 消息队列 * 3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81"><span class="nav-number">4.</span> <span class="nav-text">Redis 分布式锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E8%AF%BB%E5%8F%96%E7%AD%96%E7%95%A5"><span class="nav-number">5.</span> <span class="nav-text">缓存读取策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E4%B8%80%E8%87%B4%E6%80%A7-cache-consistency"><span class="nav-number">6.</span> <span class="nav-text">缓存一致性 cache consistency</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Cache-invalidation-Cache-%E5%A4%B1%E6%95%88"><span class="nav-number">6.1.</span> <span class="nav-text">Cache invalidation, Cache 失效</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-through-caching"><span class="nav-number">6.2.</span> <span class="nav-text">Write-through caching</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-behind-caching"><span class="nav-number">6.3.</span> <span class="nav-text">Write-behind caching</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83"><span class="nav-number">6.4.</span> <span class="nav-text">参考</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E9%97%AE%E9%A2%98"><span class="nav-number">7.</span> <span class="nav-text">缓存问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83-1"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">9.</span> <span class="nav-text">其他</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Tindoc</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://tindoc.github.com/20230306232533/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Tindoc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tindoc">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Redis 补充 | Tindoc">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis 补充
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-03-06 23:25:33" itemprop="dateCreated datePublished" datetime="2023-03-06T23:25:33+08:00">2023-03-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-03-08 15:19:43" itemprop="dateModified" datetime="2023-03-08T15:19:43+08:00">2023-03-08</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h3 id="Redis-为什么快？"><a href="#Redis-为什么快？" class="headerlink" title="Redis 为什么快？"></a>Redis 为什么快？</h3><p><img src="https://javaguide.cn/assets/why-redis-so-fast.d3507ae8.png"><br><a target="_blank" rel="noopener" href="https://javaguide.cn/database/redis/redis-questions-01.html#redis-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB">参考</a></p>
+<ul>
+<li>内存操作</li>
+<li>优化的数据结构</li>
+<li>单线程事件循环 + IO 多路复用（命令执行永远单线程，所有原子性）</li>
+</ul>
+<h3 id="Redis-架构模式-4"><a href="#Redis-架构模式-4" class="headerlink" title="Redis 架构模式 * 4"></a>Redis 架构模式 * 4</h3><ul>
+<li><p>standalone</p>
+</li>
+<li><p>master&#x2F;replica 可以 <em>写主读从</em></p>
+<p>  master 会将 <strong>写操作同步</strong> 到 replica；每次添加 replica 可能会经历 全量复制 的步骤，后续再增量复制</p>
+</li>
+<li><p>sentinel</p>
+<p>  解决问题：master 宕机后写失败，只能读 replica。需要需要人工介入重选 master 并重新配置所有 client 的 master IP。sentinel 自动执行这些步骤，实现 <strong>主从故障转移</strong></p>
+<p>  哨兵其实是一个运行在特殊模式下的 Redis 进程，所以它也是一个节点。哨兵节点主要负责三件事情：监控、选主、通知。</p>
+<p>  至少需要三台机器。master * 1 + replica * 2 + sentinel * 3 共 6 台机器（或 3 台机器，一台一个哨兵+一个主&#x2F;从）</p>
+<p>  <a target="_blank" rel="noopener" href="https://www.jianshu.com/p/fcd40e2f9d19">具体配置</a></p>
+</li>
+<li><p>cluster</p>
+<p>  突破机器的内存限制（垂直扩容），实现水平扩容，每个节点承担部分数据的存储，而且负载均衡</p>
+</li>
+</ul>
+<h3 id="Redis-消息队列-3"><a href="#Redis-消息队列-3" class="headerlink" title="Redis 消息队列 * 3"></a>Redis 消息队列 * 3</h3><p>list, stream, Pub&#x2F;Sub 三种模式</p>
+<blockquote>
+<p>消息模型有两种</p>
+<ul>
+<li>点对点： Point-to-Point(P2P)</li>
+<li>发布订阅：Publish&#x2F;Subscribe(Pub&#x2F;Sub)</li>
+</ul>
+</blockquote>
+<p>优缺：</p>
+<ul>
+<li><p>list 仅支持一生产+一消费（类似 P2P）</p>
+<p>  使用 lpush, rpop&#x2F;brpop 指令</p>
+</li>
+<li><p>pub&#x2F;sub 可以多个消费者（使用 PUBLISH, SUBSCRIBE）</p>
+</li>
+<li><p>list 没有 ack 机制，可能会丢消息</p>
+<p>  解决：使用 <code>B-RPOP-LPUSH &lt;this-list&gt; &lt;back-list&gt;</code> 指令取内容（取之前先存一份备份，确定没问题了再 rpop back-list 里的数据）</p>
+</li>
+<li><p><strong>pub&#x2F;sub 不支持持久化，也没有 ack</strong></p>
+</li>
+<li><p>Stream 比较完整地实现了消息队列的内容</p>
+</li>
+<li><p>不是所有客户端都支持三种模式，例如：Jedis, lettuce, Redisson</p>
+</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://javakeeper.starfish.ink/data-management/Redis/Redis-MQ.html">Redis 消息队列的三种方案（List、Streams、Pub&#x2F;Sub）</a> 最后的参考链接有好东西</p>
+<h3 id="Redis-分布式锁"><a href="#Redis-分布式锁" class="headerlink" title="Redis 分布式锁"></a>Redis 分布式锁</h3><p><code>set &lt;key&gt; &lt;value&gt; nx</code> 返回值为 1 获得锁，而且最好在 value 中存入当前线程的信息，释放锁的时候只允许获得锁的线程释放</p>
+<p>还需要考虑死锁的问题，最好设置 TTL，但是又要自动续期，可以使用 Redisson 的 RLock，自带 Watch Dog 监控</p>
+<p>参考：<a target="_blank" rel="noopener" href="https://javaguide.cn/distributed-system/distributed-lock.html">分布式锁详解</a></p>
+<h3 id="缓存读取策略"><a href="#缓存读取策略" class="headerlink" title="缓存读取策略"></a>缓存读取策略</h3><ul>
+<li>cache-aside, Miss 的时候 app 直接去 DB，然后再新增 cache</li>
+<li>read-through cache, app 直连 cache，cache miss 的时候自己去 DB，对 app 而言没有 DB 的概念</li>
+</ul>
+<p>参考：<a target="_blank" rel="noopener" href="https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/">Caching Strategies and How to Choose the Right One</a> 有图，有优缺（<a target="_blank" rel="noopener" href="https://iq.opengenus.org/caching-strategies/">类似</a>）</p>
+<h3 id="缓存一致性-cache-consistency"><a href="#缓存一致性-cache-consistency" class="headerlink" title="缓存一致性 cache consistency"></a>缓存一致性 cache consistency</h3><p>缓存更新的策略</p>
+<h4 id="Cache-invalidation-Cache-失效"><a href="#Cache-invalidation-Cache-失效" class="headerlink" title="Cache invalidation, Cache 失效"></a>Cache invalidation, Cache 失效</h4><p>DB 更新之后删除对应的 cache</p>
+<ul>
+<li>使用：简单场景，读多写少</li>
+<li>缺：cache 失效要查 DB</li>
+<li>先删 cache 再更新 db 行不行？不行，在未更新 db 之前，其他读请求重新设置一个 old cache，后面的查询就一直 get old value</li>
+</ul>
+<h4 id="Write-through-caching"><a href="#Write-through-caching" class="headerlink" title="Write-through caching"></a>Write-through caching</h4><p>同时更新 cache 和 DB（先 cache）</p>
+<ul>
+<li>适用：读多写少</li>
+<li>缺：增加请求耗时（因为要同时操作 cache, db）</li>
+</ul>
+<h4 id="Write-behind-caching"><a href="#Write-behind-caching" class="headerlink" title="Write-behind caching"></a>Write-behind caching</h4><p>更新 cache，有空的时候异步更新 DB</p>
+<ul>
+<li>适用：写多</li>
+<li>缺：丢数据风险高</li>
+</ul>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><ul>
+<li><a target="_blank" rel="noopener" href="https://redis.com/blog/three-ways-to-maintain-cache-consistency/">Three Ways to Maintain Cache Consistency</a> 比较简单</li>
+<li><a target="_blank" rel="noopener" href="https://www.infoq.cn/article/write-behind-caching">极端事务处理模式：Write-behind 缓存</a></li>
+<li><a target="_blank" rel="noopener" href="https://redisson.org/glossary/write-through-and-write-behind-caching.html">What are write-through and write-behind caching?</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/163547235">Redis系列（七）：缓存只是读写回种这么简单吗？如果是，那么请你一定看看这篇文章！</a></li>
+<li><a target="_blank" rel="noopener" href="https://javaguide.cn/database/redis/3-commonly-used-cache-read-and-write-strategies.html">3种常用的缓存读写策略详解</a></li>
+<li><a target="_blank" rel="noopener" href="https://xiaolincoding.com/redis/architecture/mysql_redis_consistency.html">数据库和缓存如何保证一致性？</a></li>
+<li><a target="_blank" rel="noopener" href="https://aws.amazon.com/caching/best-practices/">Caching Best Practices</a></li>
+</ul>
+<h3 id="缓存问题"><a href="#缓存问题" class="headerlink" title="缓存问题"></a>缓存问题</h3><p><a target="_blank" rel="noopener" href="https://xiaolincoding.com/redis/cluster/cache_problem.html">参考</a></p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/061e2c04e0ebca3425dd75dd035b6b7b.png"></p>
+<ul>
+<li><p>雪崩：大量缓存同时过期 或 Redis 宕机</p>
+<ul>
+<li><p>均匀设置过期时间（加随机数）</p>
+</li>
+<li><p>互斥锁</p>
+<p>  当业务线程在处理用户请求时，如果发现访问的数据不在 Redis 里，就加个互斥锁（带超时事件，避免释放失败），保证同一时间内只有一个请求来构建缓存（从数据库读取数据，再将数据更新到 Redis 里），当缓存构建完成后，再释放锁。未能获取互斥锁的请求，要么等待锁释放后重新读取缓存，要么就返回空值或者默认值</p>
+</li>
+<li><p>双 key 策略</p>
+<p>  我们对缓存数据可以使用两个 key，一个是主 key，会设置过期时间，一个是备 key，不会设置过期，它们只是 key 不一样，但是 value 值是一样的，相当于给缓存数据做了个副本。当业务线程访问不到「主 key 」的缓存数据时，就直接返回「备 key 」的缓存数据，然后在更新缓存的时候，同时更新「主 key 」和「备 key 」的数据</p>
+</li>
+<li><p>后台更新缓存</p>
+<p>  业务线程不再负责更新缓存，缓存也不设置有效期，而是让缓存“永久有效”，并将更新缓存的工作交由后台线程定时更新。还有些 <a target="_blank" rel="noopener" href="https://xiaolincoding.com/redis/cluster/cache_problem.html#%E5%A4%A7%E9%87%8F%E6%95%B0%E6%8D%AE%E5%90%8C%E6%97%B6%E8%BF%87%E6%9C%9F">问题</a> 要考虑</p>
+</li>
+<li><p>宕机解决</p>
+<ul>
+<li>限流</li>
+<li>Redis HA</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>击穿：热点缓存过期（缓存击穿是缓存雪崩的一个子集）</p>
+<ul>
+<li>互斥锁</li>
+<li>热点数据不设置过期，或即将过期通知后台重设时间</li>
+</ul>
+</li>
+<li><p>穿透：不在缓存也不在数据库</p>
+<p>  为什么发生？</p>
+<ul>
+<li>业务误操作，缓存中的数据和数据库中的数据都被误删除了</li>
+<li>黑客恶意攻击，故意大量访问某些读取不存在数据的业务</li>
+</ul>
+<p>  解决：</p>
+<ul>
+<li>限制非法请求（API 入口检验请求参数）</li>
+<li>缓存空值或者默认值</li>
+<li>使用布隆过滤器快速判断数据是否存在</li>
+</ul>
+</li>
+</ul>
+<h3 id="参考-1"><a href="#参考-1" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.redis.com.cn/redis-interview-questions.html">redis面试题</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.redis.com.cn/">Redis 中文</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.redis.cn/articles.html">文章大全</a></li>
+</ul>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://try.redis.io/">在线 Redis</a> 貌似是旧版本，不支持 <code>bitpos key bit start end BIT</code> 这种语法</li>
+<li><a target="_blank" rel="noopener" href="https://developer.redis.com/howtos/">redisdeveloper: HowTos &amp; Tutorials</a> 提供了很多使用案例（虽然是针对 RedisEnterprise，但是思路可参考）</li>
+<li><a target="_blank" rel="noopener" href="https://redis.com/">redis.com</a> 的 SOLUTIONS-USE CASES 和 RESOURCES 中包含很多资源</li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_46897923/article/details/129193177">java面试八股文之——Redis夺命连环25问</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+              <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag"># 中间件</a>
+              <a href="/tags/db/" rel="tag"># db</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/20230306211546/" rel="prev" title="Redis 实践">
+                  <i class="fa fa-chevron-left"></i> Redis 实践
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tindoc</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

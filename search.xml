@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>React Doc</title>
+    <url>/20230305135552/</url>
+    <content><![CDATA[<blockquote>
+<p><a href="https://zh-hans.reactjs.org/docs/getting-started.html">React 的官方文档</a> 是个好东西，特别是 <a href="https://zh-hans.reactjs.org/docs/thinking-in-react.html">React 哲学</a>, <a href="https://zh-hans.reactjs.org/docs/faq-ajax.html">FAQ</a>, <a href="https://zh-hans.reactjs.org/docs/hooks-faq.html">Hooks FAQ</a></p>
+<p>以下内容主要对应 <a href="https://zh-hans.reactjs.org/docs/hello-world.html">文档-核心概念</a> 章节</p>
+</blockquote>
+<h2 id="Props-的只读性"><a href="#Props-的只读性" class="headerlink" title="Props 的只读性"></a>Props 的只读性</h2><p><a href="https://zh-hans.reactjs.org/docs/components-and-props.html#props-are-read-only">From</a><br>所有 React 组件都必须像纯函数一样保护它们的 props 不被更改</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 不允许</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">withdraw</span>(<span class="params">account, amount</span>) &#123;</span><br><span class="line">  account.<span class="property">total</span> -= amount;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 允许</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">sum</span>(<span class="params">a, b</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="正确使用-State（-3）"><a href="#正确使用-State（-3）" class="headerlink" title="正确使用 State（*3）"></a>正确使用 State（*3）</h2><p><a href="https://zh-hans.reactjs.org/docs/state-and-lifecycle.html#using-state-correctly">From</a></p>
+<h3 id="1-不要直接修改-State"><a href="#1-不要直接修改-State" class="headerlink" title="1. 不要直接修改 State"></a>1. 不要直接修改 State</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Wrong 不会重新渲染</span></span><br><span class="line"><span class="variable language_">this</span>.<span class="property">state</span>.<span class="property">comment</span> = <span class="string">&#x27;Hello&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Correct</span></span><br><span class="line"><span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123;<span class="attr">comment</span>: <span class="string">&#x27;Hello&#x27;</span>&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="2-State-的更新可能是异步的"><a href="#2-State-的更新可能是异步的" class="headerlink" title="2. State 的更新可能是异步的"></a>2. State 的更新可能是异步的</h3><p>出于性能考虑，React 可能会把多个 setState() 调用合并成一个调用</p>
+<p>@a 所以 “一个 state 依赖其他的 state&#x2F;props” 的情况可能会出错</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Wrong</span></span><br><span class="line"><span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123;</span><br><span class="line">  <span class="attr">counter</span>: <span class="variable language_">this</span>.<span class="property">state</span>.<span class="property">counter</span> + <span class="variable language_">this</span>.<span class="property">props</span>.<span class="property">increment</span>,</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Correct @a 但是函数式组件用不了该方法（最多只能使用自己的上一个状态，多次更改同一个 state 时才有用）；而且这种方法不符合 State 的使用</span></span><br><span class="line"><span class="variable language_">this</span>.<span class="title function_">setState</span>(<span class="function">(<span class="params">state, props</span>) =&gt;</span> (&#123;</span><br><span class="line">  <span class="attr">counter</span>: state.<span class="property">counter</span> + props.<span class="property">increment</span></span><br><span class="line">&#125;));</span><br></pre></td></tr></table></figure>
+<h3 id="3-State-的更新会被合并"><a href="#3-State-的更新会被合并" class="headerlink" title="3. State 的更新会被合并"></a>3. State 的更新会被合并</h3><p>@a 主要指的是 Class 组件中的 setState 方法，如果使用函数组件的 useSate() 方法的回调函数时需要手动合并内容</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Demo</span> <span class="keyword">extends</span> <span class="title class_ inherited__">React.Component</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params">props</span>) &#123;</span><br><span class="line">        <span class="variable language_">super</span>(props);</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">state</span> = &#123;</span><br><span class="line">            <span class="attr">posts</span>: [],      </span><br><span class="line">            <span class="attr">comments</span>: []    </span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="title function_">componentDidMount</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="title function_">fetchPosts</span>().<span class="title function_">then</span>(<span class="function"><span class="params">response</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123;</span><br><span class="line">                <span class="attr">posts</span>: response.<span class="property">posts</span>      </span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="title function_">fetchComments</span>().<span class="title function_">then</span>(<span class="function"><span class="params">response</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="variable language_">this</span>.<span class="title function_">setState</span>(&#123;</span><br><span class="line">                <span class="attr">comments</span>: response.<span class="property">comments</span> <span class="comment">// 此时 this.state.posts 不变，this.state.comments 使用新值替换</span></span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 函数组件，参考 https://zh-hans.reactjs.org/docs/hooks-reference.html#functional-updates 和 https://zh-hans.reactjs.org/docs/hooks-faq.html#should-i-use-one-or-many-state-variables</span></span><br><span class="line"><span class="keyword">const</span> [state, setState] = <span class="title function_">useState</span>(&#123;&#125;);</span><br><span class="line"></span><br><span class="line"><span class="title function_">setState</span>(<span class="function"><span class="params">prevState</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 也可以使用 Object.assign</span></span><br><span class="line">  <span class="keyword">return</span> &#123;...prevState, ...updatedValues&#125;;</span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// useReducer 可能更适合用于管理包含多个子值的 state 对象。</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="State-amp-Props"><a href="#State-amp-Props" class="headerlink" title="State &amp; Props"></a>State &amp; Props</h2><p><a href="https://zh-hans.reactjs.org/docs/faq-state.html#what-is-the-difference-between-state-and-props">Form</a></p>
+<p>在 <a href="#react-%E5%93%B2%E5%AD%A6">React 哲学</a> 中提到了什么时候不该用 State</p>
+<h2 id="元素的-key-只有放在就近的数组上下文中才有意义"><a href="#元素的-key-只有放在就近的数组上下文中才有意义" class="headerlink" title="元素的 key 只有放在就近的数组上下文中才有意义"></a>元素的 key 只有放在就近的数组上下文中才有意义</h2><p><a href="https://zh-hans.reactjs.org/docs/lists-and-keys.html#extracting-components-with-keys">From</a></p>
+<p>一个好的经验法则是：<strong>在 map() 方法中的元素需要设置 key 属性</strong>。</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 错误做法</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">ListItem</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> value = props.<span class="property">value</span>;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">        <span class="comment">// 错误！你不需要在这里指定 key：    </span></span><br><span class="line">        <span class="language-xml"><span class="tag">&lt;<span class="name">li</span> <span class="attr">key</span>=<span class="string">&#123;value.toString()&#125;</span>&gt;</span>&#123;value&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">NumberList</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> numbers = props.<span class="property">numbers</span>;</span><br><span class="line">    <span class="keyword">const</span> listItems = numbers.<span class="title function_">map</span>(<span class="function">(<span class="params">number</span>) =&gt;</span></span><br><span class="line">        <span class="comment">// 错误！元素的 key 应该在这里指定：    </span></span><br><span class="line">        <span class="language-xml"><span class="tag">&lt;<span class="name">ListItem</span> <span class="attr">value</span>=<span class="string">&#123;number&#125;</span> /&gt;</span></span>  </span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">        <span class="language-xml"><span class="tag">&lt;<span class="name">ul</span>&gt;</span>&#123;listItems&#125;<span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 正确做法</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">ListItem</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="comment">// 正确！这里不需要指定 key：  </span></span><br><span class="line">    <span class="keyword">return</span> <span class="language-xml"><span class="tag">&lt;<span class="name">li</span>&gt;</span>&#123;props.value&#125;<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">NumberList</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> numbers = props.<span class="property">numbers</span>;</span><br><span class="line">    <span class="keyword">const</span> listItems = numbers.<span class="title function_">map</span>(<span class="function">(<span class="params">number</span>) =&gt;</span></span><br><span class="line">        <span class="comment">// 正确！key 应该在数组的上下文中被指定   </span></span><br><span class="line">        <span class="language-xml"><span class="tag">&lt;<span class="name">ListItem</span> <span class="attr">key</span>=<span class="string">&#123;number.toString()&#125;</span> <span class="attr">value</span>=<span class="string">&#123;number&#125;</span> /&gt;</span></span>  </span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">        <span class="language-xml"><span class="tag">&lt;<span class="name">ul</span>&gt;</span>&#123;listItems&#125;<span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="受控组件-x2F-非受控组件"><a href="#受控组件-x2F-非受控组件" class="headerlink" title="受控组件&#x2F;非受控组件"></a>受控组件&#x2F;非受控组件</h2><ul>
+<li><p><a href="https://zh-hans.reactjs.org/docs/forms.html#controlled-components">受控</a></p>
+<p>  使用 State 控制表单输入元素（如果觉得麻烦可以参考 <a href="https://zh-hans.reactjs.org/docs/forms.html#fully-fledged-solutions">生产方案</a> ）</p>
+<p>  @q 函数组件如何处理 <a href="https://zh-hans.reactjs.org/docs/forms.html#handling-multiple-inputs">多个输入</a> ？只能一个一个 useSate？</p>
+</li>
+<li><p><a href="https://zh-hans.reactjs.org/docs/uncontrolled-components.html">非受控</a></p>
+<p>  表单数据将交由 DOM 节点来处理，可以使用 ref 来处理</p>
+<p>  @a 感觉像是建立一个链接，不过 ref 有使用限制（只能用于 DOM 元素或 Class 组件）</p>
+<ul>
+<li>不能给 函数组件 设置 ref 属性，具体参考 <a href="https://zh-hans.reactjs.org/docs/refs-and-the-dom.html#refs-and-function-components">Refs 与函数组件</a></li>
+<li>函数组件内部自由使用，使用 useRef() Hook</li>
+</ul>
+</li>
+</ul>
+<p><a href="https://goshakkk.name/controlled-vs-uncontrolled-inputs-react/">受控还是非受控？</a></p>
+<h2 id="状态提升"><a href="#状态提升" class="headerlink" title="状态提升"></a>状态提升</h2><p><a href="https://zh-hans.reactjs.org/docs/lifting-state-up.html#lessons-learned">From</a><br>@a 和 向下的数据流 有关</p>
+<p>虽然提升 state 方式比双向绑定方式需要编写更多的“样板”代码，但带来的好处是，排查和隔离 bug 所需的工作量将会变少。由于“存在”于组件中的任何 state，仅有组件自己能够修改它，因此 bug 的排查范围被大大缩减了。</p>
+<h2 id="Props-children-属性"><a href="#Props-children-属性" class="headerlink" title="Props.children 属性"></a>Props.children 属性</h2><p><a href="https://zh-hans.reactjs.org/docs/composition-vs-inheritance.html">From</a></p>
+<p>包含了调用组件时传递的 HTML 内容</p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">FancyBorder</span>(<span class="params">props</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">        <span class="language-xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">className</span>=<span class="string">&#123;</span>&#x27;<span class="attr">FancyBorder</span> <span class="attr">FancyBorder-</span>&#x27; + <span class="attr">props.color</span>&#125;&gt;</span></span></span><br><span class="line"><span class="language-xml">            &#123;props.children&#125;</span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">WelcomeDialog</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">        <span class="language-xml"><span class="tag">&lt;<span class="name">FancyBorder</span> <span class="attr">color</span>=<span class="string">&quot;blue&quot;</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">h1</span> <span class="attr">className</span>=<span class="string">&quot;Dialog-title&quot;</span>&gt;</span>Welcome<span class="tag">&lt;/<span class="name">h1</span>&gt;</span>      </span></span><br><span class="line"><span class="language-xml">            <span class="tag">&lt;<span class="name">p</span> <span class="attr">className</span>=<span class="string">&quot;Dialog-message&quot;</span>&gt;</span>Thank you for visiting our spacecraft!<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">        <span class="tag">&lt;/<span class="name">FancyBorder</span>&gt;</span></span></span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="React-哲学"><a href="#React-哲学" class="headerlink" title="React 哲学"></a>React 哲学</h2><p><a href="https://zh-hans.reactjs.org/docs/thinking-in-react.html">From</a><br>React 最棒的部分之一是引导我们思考如何构建一个应用。</p>
+<ol>
+<li><p>将设计好的 UI 划分为组件层级 </p>
+</li>
+<li><p>用 React 创建一个静态版本</p>
+<ul>
+<li>最好将渲染 UI 和添加交互这两个过程分开。这是因为，编写一个应用的静态版本时，往往要编写大量代码，而不需要考虑太多交互细节；添加交互功能时则要考虑大量细节，而不需要编写太多代码。</li>
+<li>在构建应用的静态版本时，我们需要创建一些会重用其他组件的组件，然后通过 props 传入所需的数据。props 是父组件向子组件传递数据的方式。即使你已经熟悉了 state 的概念，也完全不应该使用 state 构建静态版本。state 代表了随时间会产生变化的数据，应当仅在实现交互时使用。所以构建应用的静态版本时，你不会用到它。</li>
+</ul>
+</li>
+<li><p>确定 UI state 的最小（且完整）表示</p>
+<ul>
+<li>想要使你的 UI 具备交互功能，需要有触发基础数据模型改变的能力。React 通过实现 state 来完成这个任务。</li>
+<li>为了正确地构建应用，你首先需要找出应用所需的 state 的最小表示，并根据需要计算出其他所有数据。</li>
+<li><strong>通过问自己以下三个问题，你可以逐个检查相应数据是否属于 state</strong>：<ol>
+<li>该数据是否是由父组件通过 props 传递而来的？如果是，那它应该不是 state。</li>
+<li>该数据是否随时间的推移而保持不变？如果是，那它应该也不是 state。</li>
+<li>你能否根据其他 state 或 props 计算出该数据的值？如果是，那它也不是 state。</li>
+</ol>
+</li>
+</ul>
+</li>
+<li><p>确定 state 放置的位置</p>
+<p> React 中的数据流是单向的，并顺着组件层级从上往下传递。哪个组件应该拥有某个 state 这件事，对初学者来说往往是最难理解的部分。尽管这可能在一开始不是那么清晰，但你可以尝试通过以下步骤来判断：</p>
+<ol>
+<li>找到根据这个 state 进行渲染的所有组件。</li>
+<li>找到他们的共同所有者（common owner）组件（在组件层级上高于所有需要该 state 的组件）。</li>
+<li>该共同所有者组件或者比它层级更高的组件应该拥有该 state。</li>
+<li>如果你找不到一个合适的位置来存放该 state，就可以直接创建一个新的组件来存放该 state，并将这一新组件置于高于共同所有者组件层级的位置。</li>
+</ol>
+</li>
+<li><p>添加反向数据流 </p>
+<p> React 通过一种比传统的双向绑定略微繁琐的方法来实现反向数据传递。尽管如此，但这种需要显式声明的方法更有助于人们理解程序的运作方式。</p>
+<p> @a 一般来说是在设置 useState 的更新函数或者 this.setState() 方法</p>
+</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>React</tag>
+        <tag>Doc</tag>
+        <tag>前端</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>React 数据类型设计</title>
+    <url>/20230305160905/</url>
+    <content><![CDATA[<p>如何设计数据类型？props？state？常量？</p>
+<p>参考：<a href="https://juejin.cn/post/7026504934761693221">https://juejin.cn/post/7026504934761693221</a></p>
+]]></content>
+      <tags>
+        <tag>React</tag>
+        <tag>前端</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis Doc</title>
+    <url>/20230305211159/</url>
+    <content><![CDATA[<blockquote>
+<p>Redis(REmote DIctionary Server) 的 <a href="https://redis.io/docs/">文档</a>，以下按照 Redis 文档顺序介绍。主要是 About, Getting started, User interfaces, Data types 这几部分</p>
+</blockquote>
+<p>官方给出的使用场景 use cases</p>
+<ul>
+<li>real-time data store 实时数据存储</li>
+<li>caching &amp; session storage 缓存 &amp; Session 存储</li>
+<li>streaming &amp; messaging 流 &amp; 消息传递</li>
+</ul>
+<h2 id="About"><a href="#About" class="headerlink" title="About"></a>About</h2><p>数据结构：</p>
+<ul>
+<li>strings, hashes, lists, sets, sorted sets</li>
+<li>特殊：bitmaps, hyperloglogs, geospatial indexes, streams</li>
+</ul>
+<p><a href="https://redis.io/topics/persistence">磁盘持久化 on-disk persistence</a> ：</p>
+<ul>
+<li><a href="https://redis.io/topics/persistence#snapshotting">dump 到磁盘</a></li>
+<li><a href="https://redis.io/topics/persistence#append-only-file">记录 command 到 log</a></li>
+</ul>
+<p>高可用</p>
+<ul>
+<li><a href="https://redis.io/topics/sentinel">Sentinel 哨兵</a></li>
+<li><a href="https://redis.io/topics/cluster-tutorial">Cluster 集群</a></li>
+</ul>
+<p>其他功能:</p>
+<ul>
+<li>Transactions</li>
+<li>Pub&#x2F;Sub</li>
+<li>Lua scripting</li>
+<li>Keys with a limited time-to-live</li>
+<li>LRU eviction of keys</li>
+<li>Automatic failover</li>
+</ul>
+<h2 id="Getting-started"><a href="#Getting-started" class="headerlink" title="Getting started"></a>Getting started</h2><p>测试本地的 Redis</p>
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">$ redis-cli <span class="built_in">ping</span></span><br><span class="line">PONG</span><br></pre></td></tr></table></figure>
+
+<p>redis-cli 默认连接端口 6379，非默认端口需要查看 <code>redis-cli --help</code></p>
+<h3 id="Redis-安全"><a href="#Redis-安全" class="headerlink" title="Redis 安全"></a>Redis 安全</h3><p>默认绑定到所有接口（0.0.0.0），没有任何身份验证。解决：</p>
+<ul>
+<li>防火墙限制 6379 端口（集群+ 16379，哨兵 +26379）</li>
+<li>配置 bind 属性（例如：仅 loopback（即本地））<blockquote>
+<p>@q 这里的 bind 不是很理解，是对外开放的权限，类似白名单？</p>
+</blockquote>
+</li>
+<li>通过 <code>requirepass</code> 属性设置密码</li>
+<li>加密 server&#x2F;client 通道，例如 HTTPS</li>
+</ul>
+<h3 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h3><p><a href="https://redis.io/topics/persistence">how Redis persistence works on this page</a></p>
+<p>默认是 data set snapshot 模式（<code>for instance after at least five minutes if you have at least 100 changes in your data</code> @a 不知道是不是 5 分钟内 100 变化）</p>
+<p>手动持久化指令 <code>redis-cli SAVE</code><br><strong>建议使用 <code>redis-cli SHUTDOWN</code> 来关闭 Redis</strong></p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>建议使用 init script 来安装</p>
+<p><a href="https://redis.io/docs/getting-started/faq/">FAQ</a> 有些资源可以参考一下</p>
+<h2 id="User-interfaces"><a href="#User-interfaces" class="headerlink" title="User interfaces"></a>User interfaces</h2><ul>
+<li><p>CLI</p>
+</li>
+<li><p>RedisInsight 官方的 GUI 工具</p>
+<p>  参考 <a href="https://redis.io/resources/tools/">Tools</a> 还有更多</p>
+</li>
+</ul>
+<h2 id="Data-types-数据类型"><a href="#Data-types-数据类型" class="headerlink" title="Data types 数据类型"></a>Data types 数据类型</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p><a href="https://redis.io/docs/data-types/tutorial/">From</a></p>
+<ul>
+<li><p>keys 二进制安全，可以是任何东西，String 或者 JPEG file</p>
+</li>
+<li><p>keys 规则</p>
+<ol>
+<li>不要太长。超过 1024B 会浪费内存</li>
+<li>不要太短。<code>u1000flw</code> 并不比 <code>user:1000:followers</code> 好，不要仅仅为了短而放弃语义</li>
+<li>最好有格式。例如：<code>object-type:id</code></li>
+<li>最大为 512MB</li>
+</ol>
+</li>
+<li><p>keys command</p>
+<ul>
+<li><code>exists &lt;key&gt;</code> 返回 0&#x2F;1</li>
+<li><code>del &lt;key&gt;</code></li>
+<li><code>type &lt;key&gt;</code> 如果不存在，返回 none</li>
+</ul>
+</li>
+<li><p>keys 过期（到期自动销毁）</p>
+<p>  精度可以是秒&#x2F;毫秒（实际上都是毫秒）；<strong>Redis 记录的是过期的时刻</strong>，所以即使 Redis 关机，到点还是会自动销毁</p>
+<ul>
+<li><code>expire &lt;key&gt; &lt;time&gt;</code> 设置 TTL（已经设置 key 的情况下）</li>
+<li><code>set &lt;key&gt; &lt;value&gt; ex &lt;time&gt;</code> 同时设置 key 的内容和 TTL</li>
+<li><code>ttl &lt;key&gt;</code> 查看某个 key 剩下 TTL</li>
+<li><code>persist &lt;key&gt;</code> 取消过期</li>
+</ul>
+</li>
+</ul>
+<h3 id="strings"><a href="#strings" class="headerlink" title="strings"></a>strings</h3><p>使用场景：缓存 HTML 段&#x2F;页</p>
+<p>command</p>
+<ul>
+<li><p><code>set &lt;key&gt; &lt;value&gt; [nx/xx]</code> 或 <code>mset &lt;key&gt; &lt;value&gt;[&lt;key1&gt; &lt;value1&gt;...]</code></p>
+<p>  nx 不存在才设置；xx 存在才设置</p>
+</li>
+<li><p><code>get &lt;key&gt;</code> 或 <code>mget &lt;key&gt;[&lt;key1&gt; &lt;key2&gt;...]</code></p>
+</li>
+<li><p><code>incr/decr &lt;key&gt;</code> 或 <code>incr-by-float</code></p>
+</li>
+<li><p><code>incrby/decrby &lt;key&gt; &lt;num&gt;</code> 增加&#x2F;减少指定数（使用 incr 需要 value 为 num）</p>
+</li>
+</ul>
+<p>其他：</p>
+<ul>
+<li>value 最大 512MB</li>
+</ul>
+<h3 id="lists"><a href="#lists" class="headerlink" title="lists"></a>lists</h3><p>底层是 linked-list，头尾插入&#x2F;取出很快，索引检索慢。为什么用 linked-list：</p>
+<ol>
+<li>长列表添加元素快</li>
+<li><code>Redis Lists can be taken at constant length in constant time</code></li>
+</ol>
+<p><a href="https://redis.io/docs/data-types/tutorial/#common-use-cases-for-lists">使用场景</a>：</p>
+<ul>
+<li><p>进程间交流，消费者&#x2F;生产者 模式</p>
+<p>  For example both the popular Ruby libraries <a href="https://github.com/resque/resque">resque</a> and <a href="https://github.com/mperham/sidekiq">sidekiq</a> use Redis lists under the hood in order to implement background jobs.</p>
+</li>
+<li><p>记录用户最近更新的内容（社交网络）</p>
+<p>  The popular Twitter social network <a href="http://www.infoq.com/presentations/Real-Time-Delivery-Twitter">takes the latest tweets</a> posted by users into Redis lists. @a 视频，大概在 14:20 开始，中文有关文章 <a href="https://zhuanlan.zhihu.com/p/22687386">Twitter的Timeline是怎样服务数亿用户的？</a> &amp; <a href="https://blog.csdn.net/TongWaccs/article/details/112103484">系统设计面试题-实现Twitter时间线和搜索</a></p>
+<p>  类似，名人新发 twitter 就 LPUSH 到所有粉丝的 timeline list 中，粉丝刷新主页时就查该粉丝的 <code>LRANGE 0 9</code> timeline list，返回最近的 10 张</p>
+</li>
+</ul>
+<p>command</p>
+<ul>
+<li><p><code>llen &lt;key&gt;</code></p>
+</li>
+<li><p><code>lpush/rpush &lt;key&gt; &lt;value&gt; [value1 value2...]</code> 会返回当前 list 长度</p>
+</li>
+<li><p><code>lpop/rpop &lt;key&gt;</code> 从左&#x2F;右取值（如果不存在返回 nil）</p>
+<p>  注意，当所有元素被 pop 之后，<code>exists &lt;key&gt;</code> 为0，即自动删除该 list</p>
+</li>
+<li><p><code>lrange &lt;key&gt; &lt;start-index&gt; &lt;end-index&gt;</code></p>
+<p>  其中，<code>-1</code> 是最后一个元素。打印所有列表为 0,-1。大致 O(n) 操作，除非只是查头尾的少部分数据</p>
+<p>  @a 这里 lrange 开头的 l 应该是 list 的意思</p>
+</li>
+<li><p><code>ltrim &lt;key&gt; &lt;start-index&gt; &lt;end-index&gt;</code> 取特定索引变成新列表</p>
+</li>
+<li><p><code>brpop/blpop &lt;key&gt; [time]</code> block 取值，后面的时间表示最长等待时间（为 0 的话永久等待，超时结束返回 null）</p>
+<p>  主要用于实现 生产-消费者 模式。使用非 block 指令的话需要消费端做额外处理（例如，定时请求。缺点：1. 无效沟通（没有的话返回 null）;2. 定时的间隔带来延迟）</p>
+<p>  <strong>注意：可以等待多个 list；如果多个 client 在等待，则按开始等待的时间轮询逐个消费；返回一个数组，包含 list-key, pop-value 两个内容</strong></p>
+</li>
+<li><p>另：指令 lmove, blmove 实现 safer queues or rotating queues</p>
+<p>  两个 list 之间移动元素，<code>LMOVE &lt;source&gt; &lt;target&gt; &lt;LEFT|RIGHT&gt; &lt;LEFT|RIGHT&gt;</code>（后面的两个左右分别表示从 source 的左&#x2F;右取出内容放到 target 的左&#x2F;右）</p>
+</li>
+<li><p><a href="https://redis.io/commands/?group=list">更多参考</a></p>
+</li>
+</ul>
+<h3 id="hashes"><a href="#hashes" class="headerlink" title="hashes"></a>hashes</h3><p>field-value pairs</p>
+<p>command（hset 的 h 表示 hashes）</p>
+<ul>
+<li><p><code>hset &lt;key&gt; &lt;field&gt; &lt;value&gt; [field1 value1 field2 value2 ...]</code></p>
+</li>
+<li><p><code>hget &lt;key&gt; &lt;field&gt;</code> 或 <code>hmget &lt;key&gt; &lt;field1&gt; [field2 field3 ...]</code></p>
+<p>  hmget 返回数组</p>
+</li>
+<li><p><code>hgetall &lt;key&gt;</code> O(n) 时间复杂度</p>
+</li>
+<li><p><code>hincrby &lt;key&gt; &lt;field&gt; [num]</code> 给 hashes 的某个 field 自增（要求保存的内容可以转为数字）</p>
+</li>
+</ul>
+<h3 id="sets"><a href="#sets" class="headerlink" title="sets"></a>sets</h3><p>使用场景</p>
+<ul>
+<li><p>表达对象之间的关系（可以用来实现 tag 功能）</p>
+  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">// 为文章保存对应的 tags</span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">sadd news:1000:tags 1 2 5 77</span></span><br><span class="line">(integer) 4</span><br><span class="line"></span><br><span class="line">// 具体的 tag 下面有哪些文章</span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">sadd tag:1:news 1000</span></span><br><span class="line">(integer) 1</span><br></pre></td></tr></table></figure>
+
+<p>  @a 通过冗余的方式来保存，因为 Redis hashes 的 value 没有能力保存 Redis 结构，只能通过简介的方式来查询（缺少引用这种数据结构）</p>
+</li>
+<li><p>跟踪唯一的项目（例如：跟踪 blog 文章的访问 IP）</p>
+</li>
+<li><p>集合操作（例如：交集&#x2F;并集&#x2F;补集）</p>
+</li>
+</ul>
+<p>command（sadd 的 s 表示 sets）</p>
+<ul>
+<li><code>sadd &lt;key&gt; &lt;value&gt; [value1 value2 ...]</code></li>
+<li><code>smemebers &lt;key&gt;</code> 打印 sets（O(n) 时间复杂度，可以考虑 <code>sscan</code> 指令）</li>
+<li><code>scard &lt;key&gt;</code> 获取长度（在 set 中，长度一般对应英文 cardinality）</li>
+<li><code>sismember &lt;key&gt; &lt;value&gt;</code> 判断是否存在（返回 0&#x2F;1）</li>
+<li><code>sinter &lt;key&gt; [key1 key2 key3...]</code> 取交集</li>
+<li><code>sunionstore &lt;key&gt; [key1 key2 key3...]</code> 取并集</li>
+<li><code>spop &lt;key&gt;</code> 取出任意一个元素（<code>s-rand-member</code> 打印任意一个元素，不会取出）</li>
+</ul>
+<h3 id="sorted-sets"><a href="#sorted-sets" class="headerlink" title="sorted sets"></a>sorted sets</h3><p>类似 set 和 hash 的混合</p>
+<p>实现原理：</p>
+<ul>
+<li>add 元素时需要为元素指定一个 score（float 值）。先按 score 排序，如果同，则按 value 的字典序排序</li>
+<li>Sorted sets are implemented via a <strong>dual-ported data structure</strong> containing <strong>both a skip list and a hash table</strong>, so every time we add an element Redis performs an <strong>O(log(N))</strong> operation. 底层：跳表+哈希表</li>
+</ul>
+<p>使用场景：</p>
+<ul>
+<li>排行榜 leaderboards（通过更新 score 实现）</li>
+<li>API 限流。滑动窗口 sliding-window</li>
+</ul>
+<p>command（zadd 的 z 表示 sorted sets）</p>
+<ul>
+<li><p><code>zadd &lt;key&gt; &lt;score&gt; &lt;value&gt; [score1 value1 score2 value2...]</code></p>
+</li>
+<li><p><code>zrange/zrevrange &lt;key&gt; &lt;start-index&gt; &lt;end-index&gt; [withscores]</code> 正序&#x2F;逆序 打印（后面的 withscores 指定是否需要打印 scores 值）</p>
+<ul>
+<li>获取前三名 <code>zrange leaderboards 0 2 rev withscores</code>（注意的 rev 参数）</li>
+</ul>
+</li>
+<li><p><code>zrangebyscore &lt;key&gt; &lt;start-score&gt; &lt;end-score&gt;</code> 筛选打印（&#x3D;&#x3D;边界的也会打印）</p>
+</li>
+<li><p><code>z-rem-range-by-score &lt;key&gt; &lt;start-score&gt; &lt;end-score&gt;</code> 移除选中的值（&#x3D;&#x3D;边界的也会被移除）</p>
+<p>  其中，可用 <code>-inf</code> 表示负无穷大</p>
+</li>
+<li><p><code>zrank/zrevrank &lt;key&gt; &lt;value&gt;</code> 获取某个值的正序&#x2F;逆序 index</p>
+</li>
+<li><p><code>zdd &lt;key&gt; &lt;new-score&gt; &lt;exists-value&gt;</code> 更新 score（O(log(N)) 操作）</p>
+</li>
+<li><p>字典序操作指令 <code>z-range-by-lex z-rev-range-by-lex z-rem-range-by-lex z-lex-count</code></p>
+  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这里的 score 都是一样的</span></span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">zadd hackers 0 <span class="string">&quot;Alan Kay&quot;</span> 0 <span class="string">&quot;Sophie Wilson&quot;</span> 0 <span class="string">&quot;Richard Stallman&quot;</span> 0 <span class="string">&quot;Anita Borg&quot;</span> 0 <span class="string">&quot;Yukihiro Matsumoto&quot;</span> 0 <span class="string">&quot;Hedy Lamarr&quot;</span> 0 <span class="string">&quot;Claude Shannon&quot;</span></span></span><br><span class="line">0 &quot;Linus Torvalds&quot; 0 &quot;Alan Turing&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这里的 [B [P 语法</span></span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">zrangebylex hackers [B [P</span></span><br><span class="line">1) &quot;Claude Shannon&quot;</span><br><span class="line">2) &quot;Hedy Lamarr&quot;</span><br><span class="line">3) &quot;Linus Torvalds&quot;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="bitmaps"><a href="#bitmaps" class="headerlink" title="bitmaps"></a>bitmaps</h3><p><code>Bitmaps are not an actual data type, but a set of bit-oriented operations defined on the String type.</code> 不是一种实际的数据类型，只是在 String 类型上面的位操作</p>
+<p>因为 key 有 512MB 的限制，所有 bitmaps 最大有 2^32 bits（2^9 * 2^10 * 2^10 * 2^3），大概 40 亿（2^30 等于 十亿）</p>
+<p>使用场景：</p>
+<ul>
+<li>各种各样的实时分析</li>
+<li>储存与对象ID相关的空间有效但性能高的布尔信息（Storing space efficient but high performance boolean information associated with object IDs）</li>
+<li>例子<ul>
+<li><p><code>One of the biggest advantages of bitmaps is that they often provide extreme space savings when storing information. For example in a system where different users are represented by incremental user IDs, it is possible to remember a single bit information (for example, knowing whether a user wants to receive a newsletter) of 4 billion of users using just 512 MB of memory.</code> 只需使用 512MB 的内存，就可以记住 40亿 用户的一个比特信息（例如，知道一个用户是否想收到新信息）</p>
+</li>
+<li><p>统计 “最长连续登录天数”</p>
+<ul>
+<li>一个用户一个 bitmap</li>
+<li>某个用户登录，<code>setbit login-days:users:1 count-day(today - website-public-day) 1</code></li>
+<li>使用 <code>bitcount</code> 统计用户总登录天数；使用 <code>bitpos</code> 统计最长连续登录天数</li>
+</ul>
+</li>
+<li><p>统计 “日活跃用户数” <code>setbit daily-active:2023-01-01 f(user_id) 1</code> </p>
+<p>  其中 <code>f(user_id)</code> 如果是递增 ID 可以是 <code>user_id%(2^32)</code>（不是递增 ID 的话可以考虑注册时间）</p>
+<p>  仅仅只是数目的话，还可以考虑 hyperloglog</p>
+</li>
+<li><p>传统的指标计算只能通过批处理处理，使用 bitmap 可以实时计算，<a href="https://blog.getspool.com/2011/11/29/fast-easy-realtime-metrics-using-redis-bitmaps/">参考</a></p>
+</li>
+</ul>
+</li>
+</ul>
+<p>command</p>
+<ul>
+<li><p><code>setbit &lt;key&gt; &lt;bit-number&gt; &lt;1/0&gt;</code></p>
+</li>
+<li><p><code>getbit &lt;key&gt; &lt;bit-number&gt;</code> 越界返回 0</p>
+</li>
+<li><p><code>bitcount &lt;key&gt;</code> 计算有多少个 1</p>
+</li>
+<li><p><code>bitop &lt;AND | OR | XOR | NOT&gt; destkey key [key ...]</code> 通过 and&#x2F;or&#x2F;xor&#x2F;not 操作 bitmap 并将结果放到 destkey 的 bitmap 中（@a 应该较少使用）</p>
+</li>
+<li><p><code>bitpos key bit [start [end [BYTE | BIT]]]</code> 返回字符串里面第一个被设置为 1 或者 0 的 bit 位 <a href="https://redis.io/commands/bitpos/">参考</a></p>
+<p>  BYTE | BIT 用来指定 start&#x2F;end 的单位，缺省是 BYTE</p>
+</li>
+</ul>
+<h3 id="hyperLogLogs-HLL"><a href="#hyperLogLogs-HLL" class="headerlink" title="hyperLogLogs, HLL"></a>hyperLogLogs, HLL</h3><p><code>HyperLogLog is a data structure that estimates the cardinality of a set.</code> 用来估计 set 的大小（对比 set 优点是：仅占用大致恒定的内存，最大 12KB，误差在 0.81%）</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">pfadd hll a b c d</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">pfcount hll</span></span><br><span class="line">(integer) 4</span><br></pre></td></tr></table></figure>
+
+<p>使用场景：<code>counting unique queries performed by users in a search form every day</code> 计算用户每天在表单中输入的不重复查询条件的数目</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><p>大部分基础类型的大部分操作都是 O(1) 的，sorted set 是 O(log(N))</p>
+</li>
+<li><p>string 批量操作需要特殊命令 mget,mset，其他的基础类型不需要</p>
+<p> list: lpush, set: sadd, hash: hset</p>
+</li>
+</ol>
+<h2 id="Using-Redis"><a href="#Using-Redis" class="headerlink" title="Using Redis"></a>Using Redis</h2><p>@a 感觉像是 Redis 客户端开发或者直连 Redis 才会用到</p>
+<h3 id="Redis-Pub-x2F-Sub"><a href="#Redis-Pub-x2F-Sub" class="headerlink" title="Redis Pub&#x2F;Sub"></a>Redis Pub&#x2F;Sub</h3><p>command</p>
+<ul>
+<li><p><code>publish &lt;channel&gt; &lt;message&gt;</code> 返回接受到消息的 client 编号</p>
+</li>
+<li><p><code>subscribe &lt;channel&gt; [channel1 channel2 ...]</code></p>
+</li>
+<li><p><code>psubscribe &lt;channel-name-pattern&gt;</code> 订阅 channel 名符合规则的 channel</p>
+</li>
+<li><p><code>unsubscribe &lt;channel&gt; [channel1 channel2 ...]</code></p>
+<p>  redis-cli 无法使用该指令，只能 Ctrl-C 退出</p>
+</li>
+<li><p><code>spublish, ssubscribe, sunsubscribe</code> 针对 <a href="https://redis.io/docs/manual/pubsub#sharded-pubsub">sharded channel</a> 的操作</p>
+<p>  @a shard 分片。sharded channel 主要使用在集群模式下，可以减少集群中消息的交换，大概是会跟踪到 sub 所在的位置，然后往特定的主机发送</p>
+</li>
+</ul>
+<h2 id="Managing-Redis"><a href="#Managing-Redis" class="headerlink" title="Managing Redis"></a>Managing Redis</h2><h3 id="Security"><a href="#Security" class="headerlink" title="Security"></a>Security</h3><ul>
+<li><p>3.2.0 版本开始，在默认配置的情况下，以 protected mode 启动，只能以 127.0.0.1 访问</p>
+</li>
+<li><p>建议使用 ACL </p>
+<p>  比在 redis.conf 中配置 requirepass 属性更为安全</p>
+</li>
+<li><p>启用 TLS</p>
+</li>
+<li><p>重命名特定指令，例如 config 指令</p>
+</li>
+</ul>
+<h3 id="可用性保证"><a href="#可用性保证" class="headerlink" title="可用性保证"></a>可用性保证</h3><ol>
+<li>HA with Sentinel 哨兵<br>功能：监控、通知、自动故障转移、配置 provider</li>
+</ol>
+<p><a href="https://redis.io/docs/management/sentinel/">Fundamental things to know about Sentinel before deploying</a></p>
+<ul>
+<li>三台分离的物理&#x2F;虚拟机</li>
+<li>需要客户端支持</li>
+</ul>
+<ol start="2">
+<li>Replication 镜像</li>
+<li>Scalling 集群</li>
+</ol>
+<h3 id="Persistence-持久化"><a href="#Persistence-持久化" class="headerlink" title="Persistence 持久化"></a>Persistence 持久化</h3><ul>
+<li>RDB(Redis Database) point-in-time snapshots</li>
+<li>AOF(Append Only File) logs every write operation received by the server</li>
+</ul>
+<p>优缺：</p>
+<ul>
+<li>RDB 恢复比 AOF 快</li>
+<li>RDB 可能丢失更多的数据（取决于定时时间）</li>
+<li>RDB 使用 fork() 来执行 snapshots，可能影响性能（数据多的情况下更明显）</li>
+<li>在 log 过大的时候 AOF 会自动重写，而且依然安全（重写出生成当前数据的最简指令）</li>
+<li>AOF 在无意中执行了 <code>flushall</code> 之后恢复的几率更大</li>
+<li>AOF 文件一般比 RDB 大</li>
+</ul>
+<p>可以同时启动，如果同时启动之后需要恢复优先使用 AOF，而且 Redis 可以保证在创建 snapshots 的时候不会执行 AOF 的重写，在执行重写的时候不会创建 snapshots</p>
+]]></content>
+      <tags>
+        <tag>Redis</tag>
+        <tag>中间件</tag>
+        <tag>db</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis 实践</title>
+    <url>/20230306211546/</url>
+    <content><![CDATA[<h3 id="Timeline-时间线"><a href="#Timeline-时间线" class="headerlink" title="Timeline 时间线"></a>Timeline 时间线</h3><p>Twitter 有两个 timeline，一个是已关注的人的 timeline（又叫 home timeline），一个是自己发的推的 timeline（又叫 user timeline）</p>
+<p>现在需要处理的是 home timeline（推模式），即大 V 发推之后，需要把这些推推送到这个大 V 的粉丝 home timeline 中</p>
+<p>使用 list</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">fanout</span></span><br><span class="line">lpush user:1:htimeline toString(&#123;&quot;tid&quot;: &quot;推 ID&quot;, &quot;uid&quot;: &quot;大 V ID&quot;, &quot;meta&quot;: &quot;元数据&quot;&#125;)</span><br><span class="line">lpush user:2:htimeline toString(&#123;&quot;tid&quot;: &quot;推 ID&quot;, &quot;uid&quot;: &quot;大 V ID&quot;, &quot;meta&quot;: &quot;元数据&quot;&#125;)</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">用户刷新 home timeline</span></span><br><span class="line">lrange user:1:htimeline 0 9</span><br><span class="line">lrange user:2:htimeline 0 9</span><br></pre></td></tr></table></figure>
+
+<p>参考：</p>
+<ul>
+<li><a href="http://karmi.github.io/redis_twitter_example/">Redis Twitter Example: An Executable Tutorial</a> 比较完整的实现（包括用户关注这些逻辑）</li>
+<li><a href="https://redis.com/ebook/part-2-core-concepts/chapter-8-building-a-simple-social-network/8-2-home-timeline/">Home timeline</a> <strong>使用 sorted set 实现</strong></li>
+<li><a href="https://blog.csdn.net/TongWaccs/article/details/112103484">系统设计面试题-实现Twitter时间线和搜索</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/22687386">Twitter的Timeline是怎样服务数亿用户的？</a> 简介</li>
+<li><a href="https://www.cnblogs.com/wjfz/p/5367446.html">Redis实现Timeline</a></li>
+</ul>
+<h3 id="Leaderboard-amp-ranking-排行榜"><a href="#Leaderboard-amp-ranking-排行榜" class="headerlink" title="Leaderboard &amp; ranking 排行榜"></a>Leaderboard &amp; ranking 排行榜</h3><p>使用 sorted set</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加新用户</span></span><br><span class="line">zadd lb:bname1 0 user1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">更新分数（重新 add 或者 incr）</span></span><br><span class="line">zadd lb:bname1 3 user1</span><br><span class="line">zincrby lb:bname1 3 user1 </span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看 top 10</span></span><br><span class="line">zrevrange lb:bname1 0 9 [withscores]</span><br></pre></td></tr></table></figure>
+
+<p>参考：</p>
+<ul>
+<li><a href="https://developer.redis.com/howtos/leaderboard/">How to build a Real-Time Leaderboard app Using Redis</a> <strong>这里提供了很多例子</strong></li>
+<li><a href="https://redis.com/solutions/use-cases/leaderboards/">Real-time leaderboard &amp; ranking solutions</a></li>
+<li><a href="https://blog.csdn.net/qq_30285985/article/details/112382087">【开发经验】redis排行榜功能（日榜、周榜、月榜）</a> <ul>
+<li>需要初始化这些榜单，key 可以参考：dayrank:yyyy-MM-dd, weekrank:yyyy-MM-dd, monthrank:yyyy-MM</li>
+<li>可以使用 <a href="https://redis.io/commands/zunionstore/"><code>z-union-store</code></a> 来根据日实时计算周、月</li>
+<li>什么时候计算也有多种方案：<ul>
+<li>每次更新日榜的时候同时更新周、月（此时不一定要用 zunionstore）。缺：压力大</li>
+<li>查询周、月的时候再实时计算。缺：压力也大</li>
+<li>根据业务上的要求使用后台任务计算周、月（例如：业务要求周日再计算周榜，月尾计算月榜）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="https://blog.csdn.net/m0_37459380/article/details/82971525">Redis实现排行榜功能(实战)</a> Java + Spring 实现</li>
+<li><a href="https://blog.csdn.net/lvyangxue/article/details/125254806">redis实现排行榜（日榜，周榜，月榜）</a> Java+Spring+RedisTempalte</li>
+<li><a href="https://juejin.cn/post/6844903736918147080">想知道谁是你的最佳用户？基于Redis实现排行榜周期榜与最近N期榜</a> Redis + Lua 实现</li>
+</ul>
+<h3 id="UV-amp-DAU-amp-MAU-独立访客，日-x2F-月活跃用户数"><a href="#UV-amp-DAU-amp-MAU-独立访客，日-x2F-月活跃用户数" class="headerlink" title="UV &amp; DAU &amp; MAU 独立访客，日&#x2F;月活跃用户数"></a>UV &amp; DAU &amp; MAU 独立访客，日&#x2F;月活跃用户数</h3><p>UV(Unique Visitor) &amp; DAU(Daily Active Users) &amp; MAU(Monthly Active Users) </p>
+<p>需要考虑用户数量、用户 ID 特性、业务是否只是需要数目而不是具体的人</p>
+<p>sorted set 使用条件：</p>
+<ul>
+<li>unique id</li>
+<li>几乎没有什么条件，只是会浪费一些空间而已</li>
+<li>可以查询出都是哪些用户</li>
+</ul>
+<p>bitmap 使用条件：</p>
+<ul>
+<li><p>unique id</p>
+</li>
+<li><p>ID 需要自增。能映射到 bitmap 中</p>
+<p>  如果不是，可以考虑注册时间（需唯一）。假设精确到秒，注册时间减平台上线时间，一个 key 可以保存 49710 个用户（(2^32)&#x2F;(24<em>60</em>60)），再用多个 key 解决其他问题</p>
+</li>
+<li><p>用户最多只有 40 亿（2^32 个 bit）。实际上可以使用多个 key 来突破这个限制</p>
+</li>
+</ul>
+<p>hyperloglog 使用条件：</p>
+<ul>
+<li>unique id</li>
+<li>只在乎数目，不在乎具体是谁</li>
+<li>允许有误差。HLL 本来就有误差</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">用户登录</span></span><br><span class="line">sadd dau:todayDate &lt;uniqueID&gt;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看今天登录的所有用户</span></span><br><span class="line">smembers dau:todayDate</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看今天登录的用户数</span></span><br><span class="line">scard dau:todayDate</span><br></pre></td></tr></table></figure>
+
+<p>参考：</p>
+<ul>
+<li><a href="https://joshtronic.com/2022/03/13/tracking-daily-active-users-with-redis/">Tracking daily active users (DAU) with Redis</a></li>
+<li><a href="https://joshtronic.com/2015/09/13/bitmaps-vs-sets-to-track-monthly-active-users-in-redis/">Bitmaps vs. Sets to track Monthly Active Users in Redis</a> 没什么含量</li>
+<li><a href="https://blog.csdn.net/agonie201218/article/details/108988577">用户日活月活怎么统计 - Redis HyperLogLog 详解</a> 有对比，有 HLL 的原理</li>
+<li><a href="https://blog.csdn.net/boxrq1/article/details/114686938">Redis高级类型(统计全站访问量，日活跃用户)</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/1702472">Redis点赞新思路 bitmap</a> 最后提到了 UUID 和数据超过 40 亿的处理方法</li>
+</ul>
+<h3 id="Rate-Limiter-限流"><a href="#Rate-Limiter-限流" class="headerlink" title="Rate Limiter 限流"></a>Rate Limiter 限流</h3><p>非滑动窗口模式（滑动窗口需要记得每秒的访问次数），算是固定窗口模式</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置 10 s 内只允许 15 个请求（固定窗口）</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">每次访问都需要执行</span></span><br><span class="line">set rate-limiter:127.0.0.1 15 NX EX 10</span><br><span class="line">get rate-limiter:127.0.0.1 # 为 0 则阻止访问，否则</span><br><span class="line">decr rate-limiter:127.0.0.1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">滑动窗口的简单实现。缺：需要定期修剪 sorted <span class="built_in">set</span></span></span><br><span class="line">zadd limit:127.0.0.1 currentSecondTime currentSecondTime</span><br><span class="line">zrangebyscore limit:127.0.0.1 (currentSecontTime - 窗口时间) currentSecondTime # 查看 size 是否符合请求数</span><br><span class="line">zremrangebyscore limit:127.0.0.1 -inf ((currentSecontTime - 窗口时间)  # 第一个 ( 表示不取到当前值</span><br></pre></td></tr></table></figure>
+
+<p>参考：</p>
+<ul>
+<li><a href="https://developer.redis.com/howtos/ratelimiting/">How to build a Rate Limiter using Redis</a></li>
+<li><a href="https://blog.csdn.net/lmx125254/article/details/90700118">Redis 实现限流的三种方式</a></li>
+<li><a href="https://juejin.cn/post/7015853473749024776">架构师如何讲解Redis限流——滑动窗口限流 </a></li>
+<li><a href="https://mp.weixin.qq.com/s/kyFAWH3mVNJvurQDt4vchA">我司用了 6 年的 Redis 分布式限流器，可以说是非常厉害了！</a></li>
+</ul>
+<h3 id="最长连续登录天数"><a href="#最长连续登录天数" class="headerlink" title="最长连续登录天数"></a>最长连续登录天数</h3><p>使用 bitmap 的 bitpos 操作</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">登录的时候</span></span><br><span class="line">setbit login:user1 (currentDay - websitePulishDay) 1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查找最长连续登录天数</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">1. 先找到第一个登录记录</span></span><br><span class="line">bitpos login:user1 1</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">2. 找到第一个登录记录之后的第一个不登陆记录</span></span><br><span class="line">bitpos login:user1 0 (上一条指令的返回值)</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">3. 计算连续</span></span><br><span class="line">(2 返回结果) - (1 返回结果)</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">4. 继续寻找</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">测试数据 0111 1011 0000 1100（Redis 7.0 才有效，因为 bit 参数）</span></span><br><span class="line">set login:user1 &quot;\x7b\x0c&quot;</span><br><span class="line">bitpos login:user1 1</span><br><span class="line">bitpos login:user1 0 1 -1 BIT</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">5 - 1 = 4</span></span><br><span class="line">bitpos login:user1 1 5 -1 BIT</span><br></pre></td></tr></table></figure>
+
+<h3 id="月签到"><a href="#月签到" class="headerlink" title="月签到"></a>月签到</h3><p>使用 bitmap</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">用户1月6号签到</span></span><br><span class="line">SETBIT u:sign:1225:202101 5 1 # 偏移量是从0开始，所以要把6减1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">检查1月6号是否签到</span></span><br><span class="line">GETBIT u:sign:1225:202101 5 # 偏移量是从0开始，所以要把6减1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">统计1月份的签到次数</span></span><br><span class="line">BITCOUNT u:sign:1225:202101</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取1月份前31天的签到数据</span></span><br><span class="line">BITFIELD u:sign:1225:202101 get u31 0</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取1月份首次签到的日期</span></span><br><span class="line">BITPOS u:sign:1225:202101 1 # 返回的首次签到的偏移量，返回值位索引，加 1 即为当月的几号</span><br></pre></td></tr></table></figure>
+
+<p>参考：<a href="https://www.cnblogs.com/liang24/p/14449835.html">Redis实战篇（二）基于Bitmap实现用户签到功能</a></p>
+<h3 id="公司部门架构信息"><a href="#公司部门架构信息" class="headerlink" title="公司部门架构信息"></a>公司部门架构信息</h3><p><img src="https://www.edrawsoft.cn/images/orgcharting/images/yidonggs.png" alt="架构图"></p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加部门架构</span></span><br><span class="line">sadd dep:董事会 dep:总经办</span><br><span class="line">sadd dep:总经办 dep:行政中心 dep:技术中心 dep:运营中心 dep:营销中心</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">...</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">添加部门人员</span></span><br><span class="line">sadd dep:董事会:per 1 2 3</span><br><span class="line">sadd dep:技术中心:per 4 5 6 7 8</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">...</span></span><br></pre></td></tr></table></figure>
+
+<p>另一种使用 list 的 <a href="https://blog.csdn.net/thanksm1/article/details/101972919">存法</a> ：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这种结构在 Redis GUI 中看起来就像是树结构</span></span><br><span class="line">rpush dep:董事会 1 2 3 </span><br><span class="line">rpush dep:董事会:总经办:技术中心 4 5 6 7 8</span><br><span class="line">rpush dep:董事会:总经办:技术中心:研发部 4 5</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">但是查询必须带上完整的架构路径。不建议使用模糊 key，然后再查的方法</span></span><br><span class="line">key dep:*研发部</span><br><span class="line">lrange &lt;准确 key&gt; 0 -1</span><br></pre></td></tr></table></figure>
+
+<p>貌似需要考量很多东西来判断</p>
+<ul>
+<li>后端数据据是怎么存储的</li>
+<li>前端的需求是什么？是否需要查看比某个部门高级的所有部门（或者换成人，查看该人的所有领导（非直接））</li>
+<li>考虑使用 Redis 拓展？<a href="https://github.com/shimohq/ioredis-tree">ioredis-tree</a></li>
+</ul>
+<p>数据库保存树结构的方法（前四个强推）：</p>
+<ul>
+<li>大致方法：保存 pid；保存路径；关联表保存；MPT</li>
+<li><a href="https://drib.tech/programming/hierarchical-data-in-relational-databases">Hierarchical Data in Relational Databases - drib</a></li>
+<li><a href="http://download.nust.na/pub6/mysql/tech-resources/articles/hierarchical-data.html">MySQL :: Managing Hierarchical Data in MySQL</a></li>
+<li><a href="https://www.baeldung.com/cs/storing-tree-in-rdb">Storing a Tree Structure in a Relational Database | Baeldung on Computer Science</a></li>
+<li><a href="https://segmentfault.com/q/1010000000126370">数据库 - 树状结构的数据表如何设计? - SegmentFault 思否</a></li>
+<li><a href="https://cn.bing.com/search?form=MOZCON&pc=MOZI&q=Hierarchical+to+relational+database+migration">Hierarchical to relational database migration - Search</a></li>
+<li><a href="https://blog.csdn.net/Trista_1999/article/details/109100795">MySQL：如何将树形结构存储在数据库中_数据库存储树形结构的数据_劰的劰的博客-CSDN博客</a></li>
+<li><a href="https://www.cnblogs.com/vinozly/p/7419807.html">如何在数据库中存储一棵树 - VinoZhu - 博客园</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/1359877">树状结构存储与读取之Modified Preorder Tree - 腾讯云开发者社区-腾讯云</a></li>
+<li><a href="https://juejin.cn/post/7082592325133664287">聊聊mysql的树形结构存储及查询 - 掘金</a></li>
+<li><a href="https://learn.microsoft.com/en-us/sql/relational-databases/hierarchical-data-sql-server?view=sql-server-ver16">Hierarchical Data (SQL Server) - SQL Server | Microsoft Learn</a></li>
+</ul>
+<h3 id="文章-tag"><a href="#文章-tag" class="headerlink" title="文章 tag"></a>文章 tag</h3><ul>
+<li>根据文章找到 tag</li>
+<li>根据 tag 找文章</li>
+</ul>
+<p>使用 set</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">新文章（同时更新该文章有多少 tag，以及某个 tag 下有多少文章）</span></span><br><span class="line">sadd post:1:tag 1 2 3 4 5</span><br><span class="line">sadd tag:1:post 1</span><br><span class="line">sadd tag:2:post 1</span><br><span class="line">sadd tag:3:post 1</span><br><span class="line">sadd tag:4:post 1</span><br><span class="line">sadd tag:5:post 1</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取文章的 tag</span></span><br><span class="line">smembers post:1:tag</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">获取 tag 对应的文章</span></span><br><span class="line">smembers tag:3:post</span><br></pre></td></tr></table></figure>
+
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<li><a href="https://cloud.tencent.com/developer/article/1867518">面试官：Redis 的常见使用场景有哪些？</a><ul>
+<li>计算出7天都在线的用户 <code>bitop and result &lt;day_1&gt; &lt;day_2&gt; ... &lt;day_7&gt;</code>（每个用户映射到一个 bit）</li>
+<li>点赞、签到、打卡 set</li>
+<li>商品筛选 sdiff sinter sunion</li>
+</ul>
+</li>
+<li><a href="https://zhuanlan.zhihu.com/p/528146852">2 万字 + 20 张图｜ 细说 Redis 九种数据类型和应用场景</a><ul>
+<li>删除共享锁的时候需要确定删除操作只能是上锁客户端，可以把 client-id 存到 string 中，释放前判断一下（最好 Lua 脚本原子操作）</li>
+<li>共同关注 set 的 sinter 操作</li>
+<li>抽奖 set 的 spop 操作（事先把候选人放到 set 中，再 <code>spop &lt;key&gt; [多少个]</code> ）</li>
+<li>滴滴打车（特殊数据类型）</li>
+</ul>
+</li>
+<li><a href="https://redis.com/blog/5-industry-use-cases-for-redis-developers/">Redis Use Case Examples for Developers</a></li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Redis</tag>
+        <tag>中间件</tag>
+        <tag>db</tag>
+        <tag>实践</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis 补充</title>
+    <url>/20230306232533/</url>
+    <content><![CDATA[<h3 id="Redis-为什么快？"><a href="#Redis-为什么快？" class="headerlink" title="Redis 为什么快？"></a>Redis 为什么快？</h3><p><img src="https://javaguide.cn/assets/why-redis-so-fast.d3507ae8.png"><br><a href="https://javaguide.cn/database/redis/redis-questions-01.html#redis-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B9%88%E5%BF%AB">参考</a></p>
+<ul>
+<li>内存操作</li>
+<li>优化的数据结构</li>
+<li>单线程事件循环 + IO 多路复用（命令执行永远单线程，所有原子性）</li>
+</ul>
+<h3 id="Redis-架构模式-4"><a href="#Redis-架构模式-4" class="headerlink" title="Redis 架构模式 * 4"></a>Redis 架构模式 * 4</h3><ul>
+<li><p>standalone</p>
+</li>
+<li><p>master&#x2F;replica 可以 <em>写主读从</em></p>
+<p>  master 会将 <strong>写操作同步</strong> 到 replica；每次添加 replica 可能会经历 全量复制 的步骤，后续再增量复制</p>
+</li>
+<li><p>sentinel</p>
+<p>  解决问题：master 宕机后写失败，只能读 replica。需要需要人工介入重选 master 并重新配置所有 client 的 master IP。sentinel 自动执行这些步骤，实现 <strong>主从故障转移</strong></p>
+<p>  哨兵其实是一个运行在特殊模式下的 Redis 进程，所以它也是一个节点。哨兵节点主要负责三件事情：监控、选主、通知。</p>
+<p>  至少需要三台机器。master * 1 + replica * 2 + sentinel * 3 共 6 台机器（或 3 台机器，一台一个哨兵+一个主&#x2F;从）</p>
+<p>  <a href="https://www.jianshu.com/p/fcd40e2f9d19">具体配置</a></p>
+</li>
+<li><p>cluster</p>
+<p>  突破机器的内存限制（垂直扩容），实现水平扩容，每个节点承担部分数据的存储，而且负载均衡</p>
+</li>
+</ul>
+<h3 id="Redis-消息队列-3"><a href="#Redis-消息队列-3" class="headerlink" title="Redis 消息队列 * 3"></a>Redis 消息队列 * 3</h3><p>list, stream, Pub&#x2F;Sub 三种模式</p>
+<blockquote>
+<p>消息模型有两种</p>
+<ul>
+<li>点对点： Point-to-Point(P2P)</li>
+<li>发布订阅：Publish&#x2F;Subscribe(Pub&#x2F;Sub)</li>
+</ul>
+</blockquote>
+<p>优缺：</p>
+<ul>
+<li><p>list 仅支持一生产+一消费（类似 P2P）</p>
+<p>  使用 lpush, rpop&#x2F;brpop 指令</p>
+</li>
+<li><p>pub&#x2F;sub 可以多个消费者（使用 PUBLISH, SUBSCRIBE）</p>
+</li>
+<li><p>list 没有 ack 机制，可能会丢消息</p>
+<p>  解决：使用 <code>B-RPOP-LPUSH &lt;this-list&gt; &lt;back-list&gt;</code> 指令取内容（取之前先存一份备份，确定没问题了再 rpop back-list 里的数据）</p>
+</li>
+<li><p><strong>pub&#x2F;sub 不支持持久化，也没有 ack</strong></p>
+</li>
+<li><p>Stream 比较完整地实现了消息队列的内容</p>
+</li>
+<li><p>不是所有客户端都支持三种模式，例如：Jedis, lettuce, Redisson</p>
+</li>
+</ul>
+<p>参考：<a href="https://javakeeper.starfish.ink/data-management/Redis/Redis-MQ.html">Redis 消息队列的三种方案（List、Streams、Pub&#x2F;Sub）</a> 最后的参考链接有好东西</p>
+<h3 id="Redis-分布式锁"><a href="#Redis-分布式锁" class="headerlink" title="Redis 分布式锁"></a>Redis 分布式锁</h3><p><code>set &lt;key&gt; &lt;value&gt; nx</code> 返回值为 1 获得锁，而且最好在 value 中存入当前线程的信息，释放锁的时候只允许获得锁的线程释放</p>
+<p>还需要考虑死锁的问题，最好设置 TTL，但是又要自动续期，可以使用 Redisson 的 RLock，自带 Watch Dog 监控</p>
+<p>参考：<a href="https://javaguide.cn/distributed-system/distributed-lock.html">分布式锁详解</a></p>
+<h3 id="缓存读取策略"><a href="#缓存读取策略" class="headerlink" title="缓存读取策略"></a>缓存读取策略</h3><ul>
+<li>cache-aside, Miss 的时候 app 直接去 DB，然后再新增 cache</li>
+<li>read-through cache, app 直连 cache，cache miss 的时候自己去 DB，对 app 而言没有 DB 的概念</li>
+</ul>
+<p>参考：<a href="https://codeahoy.com/2017/08/11/caching-strategies-and-how-to-choose-the-right-one/">Caching Strategies and How to Choose the Right One</a> 有图，有优缺（<a href="https://iq.opengenus.org/caching-strategies/">类似</a>）</p>
+<h3 id="缓存一致性-cache-consistency"><a href="#缓存一致性-cache-consistency" class="headerlink" title="缓存一致性 cache consistency"></a>缓存一致性 cache consistency</h3><p>缓存更新的策略</p>
+<h4 id="Cache-invalidation-Cache-失效"><a href="#Cache-invalidation-Cache-失效" class="headerlink" title="Cache invalidation, Cache 失效"></a>Cache invalidation, Cache 失效</h4><p>DB 更新之后删除对应的 cache</p>
+<ul>
+<li>使用：简单场景，读多写少</li>
+<li>缺：cache 失效要查 DB</li>
+<li>先删 cache 再更新 db 行不行？不行，在未更新 db 之前，其他读请求重新设置一个 old cache，后面的查询就一直 get old value</li>
+</ul>
+<h4 id="Write-through-caching"><a href="#Write-through-caching" class="headerlink" title="Write-through caching"></a>Write-through caching</h4><p>同时更新 cache 和 DB（先 cache）</p>
+<ul>
+<li>适用：读多写少</li>
+<li>缺：增加请求耗时（因为要同时操作 cache, db）</li>
+</ul>
+<h4 id="Write-behind-caching"><a href="#Write-behind-caching" class="headerlink" title="Write-behind caching"></a>Write-behind caching</h4><p>更新 cache，有空的时候异步更新 DB</p>
+<ul>
+<li>适用：写多</li>
+<li>缺：丢数据风险高</li>
+</ul>
+<h4 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h4><ul>
+<li><a href="https://redis.com/blog/three-ways-to-maintain-cache-consistency/">Three Ways to Maintain Cache Consistency</a> 比较简单</li>
+<li><a href="https://www.infoq.cn/article/write-behind-caching">极端事务处理模式：Write-behind 缓存</a></li>
+<li><a href="https://redisson.org/glossary/write-through-and-write-behind-caching.html">What are write-through and write-behind caching?</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/163547235">Redis系列（七）：缓存只是读写回种这么简单吗？如果是，那么请你一定看看这篇文章！</a></li>
+<li><a href="https://javaguide.cn/database/redis/3-commonly-used-cache-read-and-write-strategies.html">3种常用的缓存读写策略详解</a></li>
+<li><a href="https://xiaolincoding.com/redis/architecture/mysql_redis_consistency.html">数据库和缓存如何保证一致性？</a></li>
+<li><a href="https://aws.amazon.com/caching/best-practices/">Caching Best Practices</a></li>
+</ul>
+<h3 id="缓存问题"><a href="#缓存问题" class="headerlink" title="缓存问题"></a>缓存问题</h3><p><a href="https://xiaolincoding.com/redis/cluster/cache_problem.html">参考</a></p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/061e2c04e0ebca3425dd75dd035b6b7b.png"></p>
+<ul>
+<li><p>雪崩：大量缓存同时过期 或 Redis 宕机</p>
+<ul>
+<li><p>均匀设置过期时间（加随机数）</p>
+</li>
+<li><p>互斥锁</p>
+<p>  当业务线程在处理用户请求时，如果发现访问的数据不在 Redis 里，就加个互斥锁（带超时事件，避免释放失败），保证同一时间内只有一个请求来构建缓存（从数据库读取数据，再将数据更新到 Redis 里），当缓存构建完成后，再释放锁。未能获取互斥锁的请求，要么等待锁释放后重新读取缓存，要么就返回空值或者默认值</p>
+</li>
+<li><p>双 key 策略</p>
+<p>  我们对缓存数据可以使用两个 key，一个是主 key，会设置过期时间，一个是备 key，不会设置过期，它们只是 key 不一样，但是 value 值是一样的，相当于给缓存数据做了个副本。当业务线程访问不到「主 key 」的缓存数据时，就直接返回「备 key 」的缓存数据，然后在更新缓存的时候，同时更新「主 key 」和「备 key 」的数据</p>
+</li>
+<li><p>后台更新缓存</p>
+<p>  业务线程不再负责更新缓存，缓存也不设置有效期，而是让缓存“永久有效”，并将更新缓存的工作交由后台线程定时更新。还有些 <a href="https://xiaolincoding.com/redis/cluster/cache_problem.html#%E5%A4%A7%E9%87%8F%E6%95%B0%E6%8D%AE%E5%90%8C%E6%97%B6%E8%BF%87%E6%9C%9F">问题</a> 要考虑</p>
+</li>
+<li><p>宕机解决</p>
+<ul>
+<li>限流</li>
+<li>Redis HA</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>击穿：热点缓存过期（缓存击穿是缓存雪崩的一个子集）</p>
+<ul>
+<li>互斥锁</li>
+<li>热点数据不设置过期，或即将过期通知后台重设时间</li>
+</ul>
+</li>
+<li><p>穿透：不在缓存也不在数据库</p>
+<p>  为什么发生？</p>
+<ul>
+<li>业务误操作，缓存中的数据和数据库中的数据都被误删除了</li>
+<li>黑客恶意攻击，故意大量访问某些读取不存在数据的业务</li>
+</ul>
+<p>  解决：</p>
+<ul>
+<li>限制非法请求（API 入口检验请求参数）</li>
+<li>缓存空值或者默认值</li>
+<li>使用布隆过滤器快速判断数据是否存在</li>
+</ul>
+</li>
+</ul>
+<h3 id="参考-1"><a href="#参考-1" class="headerlink" title="参考"></a>参考</h3><ul>
+<li><a href="https://www.redis.com.cn/redis-interview-questions.html">redis面试题</a></li>
+<li><a href="https://www.redis.com.cn/">Redis 中文</a></li>
+<li><a href="http://www.redis.cn/articles.html">文章大全</a></li>
+</ul>
+<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><ul>
+<li><a href="https://try.redis.io/">在线 Redis</a> 貌似是旧版本，不支持 <code>bitpos key bit start end BIT</code> 这种语法</li>
+<li><a href="https://developer.redis.com/howtos/">redisdeveloper: HowTos &amp; Tutorials</a> 提供了很多使用案例（虽然是针对 RedisEnterprise，但是思路可参考）</li>
+<li><a href="https://redis.com/">redis.com</a> 的 SOLUTIONS-USE CASES 和 RESOURCES 中包含很多资源</li>
+<li><a href="https://blog.csdn.net/m0_46897923/article/details/129193177">java面试八股文之——Redis夺命连环25问</a></li>
+</ul>
+]]></content>
+      <tags>
+        <tag>Redis</tag>
+        <tag>中间件</tag>
+        <tag>db</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>区分 value innnerHTML innerText</title>
+    <url>/20230305161529/</url>
+    <content><![CDATA[<p>参考：<a href="https://segmentfault.com/a/1190000016200638">https://segmentfault.com/a/1190000016200638</a></p>
+<p>总结：</p>
+<ul>
+<li>表单元素使用 value 取值（除 textarea）<ul>
+<li>特殊的 <code>&lt;textarea&gt;</code> 不能使用 value 而要用 innerHTML。<a href="https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/textarea">参考</a></li>
+<li>React 里面对于 <code>&lt;select&gt;</code> 也有特殊用法</li>
+</ul>
+</li>
+<li>有嵌套元素（包含开始&#x2F;结束标签）的使用 innerHTML 获取内部的 HTML 元素</li>
+<li>innerHTML 和 innerText 区别<ul>
+<li>带不带内部元素的标签</li>
+<li>带不带换行信息</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>前端</tag>
+        <tag>HTML</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深浅合并 shallow/deep merge</title>
+    <url>/20230305162230/</url>
+    <content><![CDATA[<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><p><a href="https://juejin.cn/post/6989209067533107237">web前端高级JavaScript - 对象的深合并与浅合并</a></p>
+<p>  包含实现</p>
+</li>
+<li><p><a href="https://dev.to/jagroop2000/shallow-merging-in-react-ffk">Shallow Merging in React</a></p>
+</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li>合并的两个参数类型不同会有不同的结果<ul>
+<li>有且只有一个对象，会用对象作为最后结果（无论是第一个还是第二个）</li>
+<li>都不是对象，直接用第二个替换第一个</li>
+</ul>
+</li>
+<li>shallow 只处理第一层（类似 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign">Object.assign()</a> ），deep 会遍历处理</li>
+</ul>
+<h2 id="疑问"><a href="#疑问" class="headerlink" title="疑问"></a>疑问</h2><ul>
+<li>如果其中有一个数组，是怎么处理的？</li>
+</ul>
+<h2 id="实现（来自-参考01-）："><a href="#实现（来自-参考01-）：" class="headerlink" title="实现（来自 参考01 ）："></a>实现（来自 参考01 ）：</h2><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">shallowMerge</span>(<span class="params">obj1, obj2</span>)&#123;</span><br><span class="line">	<span class="keyword">var</span> isPlain1 = <span class="title function_">isPlainObject</span>(obj1);</span><br><span class="line">	<span class="keyword">var</span> isPlain2 = <span class="title function_">isPlainObject</span>(obj2);</span><br><span class="line">	<span class="comment">//只要obj1不是对象，那么不管obj2是不是对象，都用obj2直接替换obj1</span></span><br><span class="line">	<span class="keyword">if</span>(!isPlain1) <span class="keyword">return</span> obj2;</span><br><span class="line">	<span class="comment">//走到这一步时，说明obj1肯定是对象，那如果obj2不是对象，则还是以obj1为主</span></span><br><span class="line">	<span class="keyword">if</span>(!isPlain2) <span class="keyword">return</span> obj1;</span><br><span class="line">	<span class="comment">//如果上面两个条件都不成立，那说明obj1和obj2肯定都是对象， 则遍历obj2 进行合并</span></span><br><span class="line">	<span class="keyword">let</span> keys = [</span><br><span class="line">		...<span class="title class_">Object</span>.<span class="title function_">keys</span>(obj2),</span><br><span class="line">		...<span class="title class_">Object</span>.<span class="title function_">getOwnPropertySymbols</span>(obj2)</span><br><span class="line">	]</span><br><span class="line">	keys.<span class="title function_">forEach</span>(<span class="keyword">function</span>(<span class="params">key</span>)&#123;</span><br><span class="line">		obj1[key] = obj2[key];</span><br><span class="line">	&#125;);</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> obj1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">deepMerge</span>(<span class="params">obj1, obj2, cache</span>)&#123;</span><br><span class="line">	<span class="comment">//防止死循环，这里需要把循环过的对象添加到数组中</span></span><br><span class="line">	cache = <span class="title class_">Array</span>.<span class="title function_">isArray</span>(cache) ? <span class="attr">cache</span>: [];</span><br><span class="line">	<span class="comment">//因为后面只对obj2进行遍历，所以这里只要判断obj2就可以了，如果obj2已经比较合并过了则直接返回obj2，否则在继续合并	</span></span><br><span class="line">	<span class="keyword">if</span>(cache.<span class="title function_">indexOf</span>(obj2)&gt;-<span class="number">1</span>) <span class="keyword">return</span> obj2;</span><br><span class="line">	cache.<span class="title function_">push</span>(obj2);</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> isPlain1 = <span class="title function_">isPlainObject</span>(obj1);</span><br><span class="line">	<span class="keyword">var</span> isPlain2 = <span class="title function_">isPlainObject</span>(obj2);</span><br><span class="line">	<span class="comment">//obj1或obj2中只要其中一个不是对象，则按照浅合并的规则进行合并</span></span><br><span class="line">	<span class="keyword">if</span>(!isPlain1 || !isPlain2) <span class="keyword">return</span> <span class="title function_">shallowMerge</span>(obj1, obj2);</span><br><span class="line">	<span class="comment">//如果都是对象，则进行每一层级的递归合并</span></span><br><span class="line">	<span class="keyword">let</span> keys = [</span><br><span class="line">		...<span class="title class_">Object</span>.<span class="title function_">keys</span>(obj2),</span><br><span class="line">		...<span class="title class_">Object</span>.<span class="title function_">getOwnPropertySymbols</span>(obj2)</span><br><span class="line">	]</span><br><span class="line">	keys.<span class="title function_">forEach</span>(<span class="keyword">function</span>(<span class="params">key</span>)&#123;</span><br><span class="line">		obj1[key] =  <span class="title function_">deepMerge</span>(obj1[key], obj2[key], cache);<span class="comment">//这里递归调用</span></span><br><span class="line">	&#125;);</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">return</span> obj1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <tags>
+        <tag>React</tag>
+        <tag>前端</tag>
+      </tags>
+  </entry>
+</search>

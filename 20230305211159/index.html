@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 6.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha256-/4UQcSmErDzPCMAiuOiWPVVsNN2s3ZY/NsmXNcj0IFc=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"tindoc.github.com","root":"/","images":"/images","scheme":"Mist","darkmode":false,"version":"8.15.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":false,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="Redis(REmote DIctionary Server) 的 文档，以下按照 Redis 文档顺序介绍。主要是 About, Getting started, User interfaces, Data types 这几部分">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis Doc">
+<meta property="og:url" content="https://tindoc.github.com/20230305211159/index.html">
+<meta property="og:site_name" content="Tindoc">
+<meta property="og:description" content="Redis(REmote DIctionary Server) 的 文档，以下按照 Redis 文档顺序介绍。主要是 About, Getting started, User interfaces, Data types 这几部分">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-03-05T13:11:59.000Z">
+<meta property="article:modified_time" content="2023-03-08T07:19:41.728Z">
+<meta property="article:author" content="Tindoc">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="中间件">
+<meta property="article:tag" content="db">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://tindoc.github.com/20230305211159/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://tindoc.github.com/20230305211159/","path":"20230305211159/","title":"Redis Doc"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Redis Doc | Tindoc</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Tindoc</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Tindoc's blog</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup"><div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off" maxlength="80"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close" role="button">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div class="search-result-container no-result">
+  <div class="search-result-icon">
+    <i class="fa fa-spinner fa-pulse fa-5x"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#About"><span class="nav-number">1.</span> <span class="nav-text">About</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Getting-started"><span class="nav-number">2.</span> <span class="nav-text">Getting started</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis-%E5%AE%89%E5%85%A8"><span class="nav-number">2.1.</span> <span class="nav-text">Redis 安全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">2.2.</span> <span class="nav-text">持久化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%89%E8%A3%85"><span class="nav-number">2.3.</span> <span class="nav-text">安装</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#User-interfaces"><span class="nav-number">3.</span> <span class="nav-text">User interfaces</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Data-types-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-number">4.</span> <span class="nav-text">Data types 数据类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E4%BB%8B"><span class="nav-number">4.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#strings"><span class="nav-number">4.2.</span> <span class="nav-text">strings</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lists"><span class="nav-number">4.3.</span> <span class="nav-text">lists</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hashes"><span class="nav-number">4.4.</span> <span class="nav-text">hashes</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sets"><span class="nav-number">4.5.</span> <span class="nav-text">sets</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#sorted-sets"><span class="nav-number">4.6.</span> <span class="nav-text">sorted sets</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bitmaps"><span class="nav-number">4.7.</span> <span class="nav-text">bitmaps</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hyperLogLogs-HLL"><span class="nav-number">4.8.</span> <span class="nav-text">hyperLogLogs, HLL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.9.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Using-Redis"><span class="nav-number">5.</span> <span class="nav-text">Using Redis</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis-Pub-x2F-Sub"><span class="nav-number">5.1.</span> <span class="nav-text">Redis Pub&#x2F;Sub</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Managing-Redis"><span class="nav-number">6.</span> <span class="nav-text">Managing Redis</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Security"><span class="nav-number">6.1.</span> <span class="nav-text">Security</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E7%94%A8%E6%80%A7%E4%BF%9D%E8%AF%81"><span class="nav-number">6.2.</span> <span class="nav-text">可用性保证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Persistence-%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">6.3.</span> <span class="nav-text">Persistence 持久化</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Tindoc</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://tindoc.github.com/20230305211159/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Tindoc">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Tindoc">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Redis Doc | Tindoc">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis Doc
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-03-05 21:11:59" itemprop="dateCreated datePublished" datetime="2023-03-05T21:11:59+08:00">2023-03-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2023-03-08 15:19:41" itemprop="dateModified" datetime="2023-03-08T15:19:41+08:00">2023-03-08</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <blockquote>
+<p>Redis(REmote DIctionary Server) 的 <a target="_blank" rel="noopener" href="https://redis.io/docs/">文档</a>，以下按照 Redis 文档顺序介绍。主要是 About, Getting started, User interfaces, Data types 这几部分</p>
+</blockquote>
+<p>官方给出的使用场景 use cases</p>
+<ul>
+<li>real-time data store 实时数据存储</li>
+<li>caching &amp; session storage 缓存 &amp; Session 存储</li>
+<li>streaming &amp; messaging 流 &amp; 消息传递</li>
+</ul>
+<h2 id="About"><a href="#About" class="headerlink" title="About"></a>About</h2><p>数据结构：</p>
+<ul>
+<li>strings, hashes, lists, sets, sorted sets</li>
+<li>特殊：bitmaps, hyperloglogs, geospatial indexes, streams</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://redis.io/topics/persistence">磁盘持久化 on-disk persistence</a> ：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://redis.io/topics/persistence#snapshotting">dump 到磁盘</a></li>
+<li><a target="_blank" rel="noopener" href="https://redis.io/topics/persistence#append-only-file">记录 command 到 log</a></li>
+</ul>
+<p>高可用</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://redis.io/topics/sentinel">Sentinel 哨兵</a></li>
+<li><a target="_blank" rel="noopener" href="https://redis.io/topics/cluster-tutorial">Cluster 集群</a></li>
+</ul>
+<p>其他功能:</p>
+<ul>
+<li>Transactions</li>
+<li>Pub&#x2F;Sub</li>
+<li>Lua scripting</li>
+<li>Keys with a limited time-to-live</li>
+<li>LRU eviction of keys</li>
+<li>Automatic failover</li>
+</ul>
+<h2 id="Getting-started"><a href="#Getting-started" class="headerlink" title="Getting started"></a>Getting started</h2><p>测试本地的 Redis</p>
+<figure class="highlight cmd"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ redis-cli <span class="built_in">ping</span></span><br><span class="line">PONG</span><br></pre></td></tr></table></figure>
+
+<p>redis-cli 默认连接端口 6379，非默认端口需要查看 <code>redis-cli --help</code></p>
+<h3 id="Redis-安全"><a href="#Redis-安全" class="headerlink" title="Redis 安全"></a>Redis 安全</h3><p>默认绑定到所有接口（0.0.0.0），没有任何身份验证。解决：</p>
+<ul>
+<li>防火墙限制 6379 端口（集群+ 16379，哨兵 +26379）</li>
+<li>配置 bind 属性（例如：仅 loopback（即本地））<blockquote>
+<p>@q 这里的 bind 不是很理解，是对外开放的权限，类似白名单？</p>
+</blockquote>
+</li>
+<li>通过 <code>requirepass</code> 属性设置密码</li>
+<li>加密 server&#x2F;client 通道，例如 HTTPS</li>
+</ul>
+<h3 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h3><p><a target="_blank" rel="noopener" href="https://redis.io/topics/persistence">how Redis persistence works on this page</a></p>
+<p>默认是 data set snapshot 模式（<code>for instance after at least five minutes if you have at least 100 changes in your data</code> @a 不知道是不是 5 分钟内 100 变化）</p>
+<p>手动持久化指令 <code>redis-cli SAVE</code><br><strong>建议使用 <code>redis-cli SHUTDOWN</code> 来关闭 Redis</strong></p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>建议使用 init script 来安装</p>
+<p><a target="_blank" rel="noopener" href="https://redis.io/docs/getting-started/faq/">FAQ</a> 有些资源可以参考一下</p>
+<h2 id="User-interfaces"><a href="#User-interfaces" class="headerlink" title="User interfaces"></a>User interfaces</h2><ul>
+<li><p>CLI</p>
+</li>
+<li><p>RedisInsight 官方的 GUI 工具</p>
+<p>  参考 <a target="_blank" rel="noopener" href="https://redis.io/resources/tools/">Tools</a> 还有更多</p>
+</li>
+</ul>
+<h2 id="Data-types-数据类型"><a href="#Data-types-数据类型" class="headerlink" title="Data types 数据类型"></a>Data types 数据类型</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p><a target="_blank" rel="noopener" href="https://redis.io/docs/data-types/tutorial/">From</a></p>
+<ul>
+<li><p>keys 二进制安全，可以是任何东西，String 或者 JPEG file</p>
+</li>
+<li><p>keys 规则</p>
+<ol>
+<li>不要太长。超过 1024B 会浪费内存</li>
+<li>不要太短。<code>u1000flw</code> 并不比 <code>user:1000:followers</code> 好，不要仅仅为了短而放弃语义</li>
+<li>最好有格式。例如：<code>object-type:id</code></li>
+<li>最大为 512MB</li>
+</ol>
+</li>
+<li><p>keys command</p>
+<ul>
+<li><code>exists &lt;key&gt;</code> 返回 0&#x2F;1</li>
+<li><code>del &lt;key&gt;</code></li>
+<li><code>type &lt;key&gt;</code> 如果不存在，返回 none</li>
+</ul>
+</li>
+<li><p>keys 过期（到期自动销毁）</p>
+<p>  精度可以是秒&#x2F;毫秒（实际上都是毫秒）；<strong>Redis 记录的是过期的时刻</strong>，所以即使 Redis 关机，到点还是会自动销毁</p>
+<ul>
+<li><code>expire &lt;key&gt; &lt;time&gt;</code> 设置 TTL（已经设置 key 的情况下）</li>
+<li><code>set &lt;key&gt; &lt;value&gt; ex &lt;time&gt;</code> 同时设置 key 的内容和 TTL</li>
+<li><code>ttl &lt;key&gt;</code> 查看某个 key 剩下 TTL</li>
+<li><code>persist &lt;key&gt;</code> 取消过期</li>
+</ul>
+</li>
+</ul>
+<h3 id="strings"><a href="#strings" class="headerlink" title="strings"></a>strings</h3><p>使用场景：缓存 HTML 段&#x2F;页</p>
+<p>command</p>
+<ul>
+<li><p><code>set &lt;key&gt; &lt;value&gt; [nx/xx]</code> 或 <code>mset &lt;key&gt; &lt;value&gt;[&lt;key1&gt; &lt;value1&gt;...]</code></p>
+<p>  nx 不存在才设置；xx 存在才设置</p>
+</li>
+<li><p><code>get &lt;key&gt;</code> 或 <code>mget &lt;key&gt;[&lt;key1&gt; &lt;key2&gt;...]</code></p>
+</li>
+<li><p><code>incr/decr &lt;key&gt;</code> 或 <code>incr-by-float</code></p>
+</li>
+<li><p><code>incrby/decrby &lt;key&gt; &lt;num&gt;</code> 增加&#x2F;减少指定数（使用 incr 需要 value 为 num）</p>
+</li>
+</ul>
+<p>其他：</p>
+<ul>
+<li>value 最大 512MB</li>
+</ul>
+<h3 id="lists"><a href="#lists" class="headerlink" title="lists"></a>lists</h3><p>底层是 linked-list，头尾插入&#x2F;取出很快，索引检索慢。为什么用 linked-list：</p>
+<ol>
+<li>长列表添加元素快</li>
+<li><code>Redis Lists can be taken at constant length in constant time</code></li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://redis.io/docs/data-types/tutorial/#common-use-cases-for-lists">使用场景</a>：</p>
+<ul>
+<li><p>进程间交流，消费者&#x2F;生产者 模式</p>
+<p>  For example both the popular Ruby libraries <a target="_blank" rel="noopener" href="https://github.com/resque/resque">resque</a> and <a target="_blank" rel="noopener" href="https://github.com/mperham/sidekiq">sidekiq</a> use Redis lists under the hood in order to implement background jobs.</p>
+</li>
+<li><p>记录用户最近更新的内容（社交网络）</p>
+<p>  The popular Twitter social network <a target="_blank" rel="noopener" href="http://www.infoq.com/presentations/Real-Time-Delivery-Twitter">takes the latest tweets</a> posted by users into Redis lists. @a 视频，大概在 14:20 开始，中文有关文章 <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/22687386">Twitter的Timeline是怎样服务数亿用户的？</a> &amp; <a target="_blank" rel="noopener" href="https://blog.csdn.net/TongWaccs/article/details/112103484">系统设计面试题-实现Twitter时间线和搜索</a></p>
+<p>  类似，名人新发 twitter 就 LPUSH 到所有粉丝的 timeline list 中，粉丝刷新主页时就查该粉丝的 <code>LRANGE 0 9</code> timeline list，返回最近的 10 张</p>
+</li>
+</ul>
+<p>command</p>
+<ul>
+<li><p><code>llen &lt;key&gt;</code></p>
+</li>
+<li><p><code>lpush/rpush &lt;key&gt; &lt;value&gt; [value1 value2...]</code> 会返回当前 list 长度</p>
+</li>
+<li><p><code>lpop/rpop &lt;key&gt;</code> 从左&#x2F;右取值（如果不存在返回 nil）</p>
+<p>  注意，当所有元素被 pop 之后，<code>exists &lt;key&gt;</code> 为0，即自动删除该 list</p>
+</li>
+<li><p><code>lrange &lt;key&gt; &lt;start-index&gt; &lt;end-index&gt;</code></p>
+<p>  其中，<code>-1</code> 是最后一个元素。打印所有列表为 0,-1。大致 O(n) 操作，除非只是查头尾的少部分数据</p>
+<p>  @a 这里 lrange 开头的 l 应该是 list 的意思</p>
+</li>
+<li><p><code>ltrim &lt;key&gt; &lt;start-index&gt; &lt;end-index&gt;</code> 取特定索引变成新列表</p>
+</li>
+<li><p><code>brpop/blpop &lt;key&gt; [time]</code> block 取值，后面的时间表示最长等待时间（为 0 的话永久等待，超时结束返回 null）</p>
+<p>  主要用于实现 生产-消费者 模式。使用非 block 指令的话需要消费端做额外处理（例如，定时请求。缺点：1. 无效沟通（没有的话返回 null）;2. 定时的间隔带来延迟）</p>
+<p>  <strong>注意：可以等待多个 list；如果多个 client 在等待，则按开始等待的时间轮询逐个消费；返回一个数组，包含 list-key, pop-value 两个内容</strong></p>
+</li>
+<li><p>另：指令 lmove, blmove 实现 safer queues or rotating queues</p>
+<p>  两个 list 之间移动元素，<code>LMOVE &lt;source&gt; &lt;target&gt; &lt;LEFT|RIGHT&gt; &lt;LEFT|RIGHT&gt;</code>（后面的两个左右分别表示从 source 的左&#x2F;右取出内容放到 target 的左&#x2F;右）</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://redis.io/commands/?group=list">更多参考</a></p>
+</li>
+</ul>
+<h3 id="hashes"><a href="#hashes" class="headerlink" title="hashes"></a>hashes</h3><p>field-value pairs</p>
+<p>command（hset 的 h 表示 hashes）</p>
+<ul>
+<li><p><code>hset &lt;key&gt; &lt;field&gt; &lt;value&gt; [field1 value1 field2 value2 ...]</code></p>
+</li>
+<li><p><code>hget &lt;key&gt; &lt;field&gt;</code> 或 <code>hmget &lt;key&gt; &lt;field1&gt; [field2 field3 ...]</code></p>
+<p>  hmget 返回数组</p>
+</li>
+<li><p><code>hgetall &lt;key&gt;</code> O(n) 时间复杂度</p>
+</li>
+<li><p><code>hincrby &lt;key&gt; &lt;field&gt; [num]</code> 给 hashes 的某个 field 自增（要求保存的内容可以转为数字）</p>
+</li>
+</ul>
+<h3 id="sets"><a href="#sets" class="headerlink" title="sets"></a>sets</h3><p>使用场景</p>
+<ul>
+<li><p>表达对象之间的关系（可以用来实现 tag 功能）</p>
+  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 为文章保存对应的 tags</span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">sadd news:1000:tags 1 2 5 77</span></span><br><span class="line">(integer) 4</span><br><span class="line"></span><br><span class="line">// 具体的 tag 下面有哪些文章</span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">sadd tag:1:news 1000</span></span><br><span class="line">(integer) 1</span><br></pre></td></tr></table></figure>
+
+<p>  @a 通过冗余的方式来保存，因为 Redis hashes 的 value 没有能力保存 Redis 结构，只能通过简介的方式来查询（缺少引用这种数据结构）</p>
+</li>
+<li><p>跟踪唯一的项目（例如：跟踪 blog 文章的访问 IP）</p>
+</li>
+<li><p>集合操作（例如：交集&#x2F;并集&#x2F;补集）</p>
+</li>
+</ul>
+<p>command（sadd 的 s 表示 sets）</p>
+<ul>
+<li><code>sadd &lt;key&gt; &lt;value&gt; [value1 value2 ...]</code></li>
+<li><code>smemebers &lt;key&gt;</code> 打印 sets（O(n) 时间复杂度，可以考虑 <code>sscan</code> 指令）</li>
+<li><code>scard &lt;key&gt;</code> 获取长度（在 set 中，长度一般对应英文 cardinality）</li>
+<li><code>sismember &lt;key&gt; &lt;value&gt;</code> 判断是否存在（返回 0&#x2F;1）</li>
+<li><code>sinter &lt;key&gt; [key1 key2 key3...]</code> 取交集</li>
+<li><code>sunionstore &lt;key&gt; [key1 key2 key3...]</code> 取并集</li>
+<li><code>spop &lt;key&gt;</code> 取出任意一个元素（<code>s-rand-member</code> 打印任意一个元素，不会取出）</li>
+</ul>
+<h3 id="sorted-sets"><a href="#sorted-sets" class="headerlink" title="sorted sets"></a>sorted sets</h3><p>类似 set 和 hash 的混合</p>
+<p>实现原理：</p>
+<ul>
+<li>add 元素时需要为元素指定一个 score（float 值）。先按 score 排序，如果同，则按 value 的字典序排序</li>
+<li>Sorted sets are implemented via a <strong>dual-ported data structure</strong> containing <strong>both a skip list and a hash table</strong>, so every time we add an element Redis performs an <strong>O(log(N))</strong> operation. 底层：跳表+哈希表</li>
+</ul>
+<p>使用场景：</p>
+<ul>
+<li>排行榜 leaderboards（通过更新 score 实现）</li>
+<li>API 限流。滑动窗口 sliding-window</li>
+</ul>
+<p>command（zadd 的 z 表示 sorted sets）</p>
+<ul>
+<li><p><code>zadd &lt;key&gt; &lt;score&gt; &lt;value&gt; [score1 value1 score2 value2...]</code></p>
+</li>
+<li><p><code>zrange/zrevrange &lt;key&gt; &lt;start-index&gt; &lt;end-index&gt; [withscores]</code> 正序&#x2F;逆序 打印（后面的 withscores 指定是否需要打印 scores 值）</p>
+<ul>
+<li>获取前三名 <code>zrange leaderboards 0 2 rev withscores</code>（注意的 rev 参数）</li>
+</ul>
+</li>
+<li><p><code>zrangebyscore &lt;key&gt; &lt;start-score&gt; &lt;end-score&gt;</code> 筛选打印（&#x3D;&#x3D;边界的也会打印）</p>
+</li>
+<li><p><code>z-rem-range-by-score &lt;key&gt; &lt;start-score&gt; &lt;end-score&gt;</code> 移除选中的值（&#x3D;&#x3D;边界的也会被移除）</p>
+<p>  其中，可用 <code>-inf</code> 表示负无穷大</p>
+</li>
+<li><p><code>zrank/zrevrank &lt;key&gt; &lt;value&gt;</code> 获取某个值的正序&#x2F;逆序 index</p>
+</li>
+<li><p><code>zdd &lt;key&gt; &lt;new-score&gt; &lt;exists-value&gt;</code> 更新 score（O(log(N)) 操作）</p>
+</li>
+<li><p>字典序操作指令 <code>z-range-by-lex z-rev-range-by-lex z-rem-range-by-lex z-lex-count</code></p>
+  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这里的 score 都是一样的</span></span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">zadd hackers 0 <span class="string">&quot;Alan Kay&quot;</span> 0 <span class="string">&quot;Sophie Wilson&quot;</span> 0 <span class="string">&quot;Richard Stallman&quot;</span> 0 <span class="string">&quot;Anita Borg&quot;</span> 0 <span class="string">&quot;Yukihiro Matsumoto&quot;</span> 0 <span class="string">&quot;Hedy Lamarr&quot;</span> 0 <span class="string">&quot;Claude Shannon&quot;</span></span></span><br><span class="line">0 &quot;Linus Torvalds&quot; 0 &quot;Alan Turing&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">这里的 [B [P 语法</span></span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">zrangebylex hackers [B [P</span></span><br><span class="line">1) &quot;Claude Shannon&quot;</span><br><span class="line">2) &quot;Hedy Lamarr&quot;</span><br><span class="line">3) &quot;Linus Torvalds&quot;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="bitmaps"><a href="#bitmaps" class="headerlink" title="bitmaps"></a>bitmaps</h3><p><code>Bitmaps are not an actual data type, but a set of bit-oriented operations defined on the String type.</code> 不是一种实际的数据类型，只是在 String 类型上面的位操作</p>
+<p>因为 key 有 512MB 的限制，所有 bitmaps 最大有 2^32 bits（2^9 * 2^10 * 2^10 * 2^3），大概 40 亿（2^30 等于 十亿）</p>
+<p>使用场景：</p>
+<ul>
+<li>各种各样的实时分析</li>
+<li>储存与对象ID相关的空间有效但性能高的布尔信息（Storing space efficient but high performance boolean information associated with object IDs）</li>
+<li>例子<ul>
+<li><p><code>One of the biggest advantages of bitmaps is that they often provide extreme space savings when storing information. For example in a system where different users are represented by incremental user IDs, it is possible to remember a single bit information (for example, knowing whether a user wants to receive a newsletter) of 4 billion of users using just 512 MB of memory.</code> 只需使用 512MB 的内存，就可以记住 40亿 用户的一个比特信息（例如，知道一个用户是否想收到新信息）</p>
+</li>
+<li><p>统计 “最长连续登录天数”</p>
+<ul>
+<li>一个用户一个 bitmap</li>
+<li>某个用户登录，<code>setbit login-days:users:1 count-day(today - website-public-day) 1</code></li>
+<li>使用 <code>bitcount</code> 统计用户总登录天数；使用 <code>bitpos</code> 统计最长连续登录天数</li>
+</ul>
+</li>
+<li><p>统计 “日活跃用户数” <code>setbit daily-active:2023-01-01 f(user_id) 1</code> </p>
+<p>  其中 <code>f(user_id)</code> 如果是递增 ID 可以是 <code>user_id%(2^32)</code>（不是递增 ID 的话可以考虑注册时间）</p>
+<p>  仅仅只是数目的话，还可以考虑 hyperloglog</p>
+</li>
+<li><p>传统的指标计算只能通过批处理处理，使用 bitmap 可以实时计算，<a target="_blank" rel="noopener" href="https://blog.getspool.com/2011/11/29/fast-easy-realtime-metrics-using-redis-bitmaps/">参考</a></p>
+</li>
+</ul>
+</li>
+</ul>
+<p>command</p>
+<ul>
+<li><p><code>setbit &lt;key&gt; &lt;bit-number&gt; &lt;1/0&gt;</code></p>
+</li>
+<li><p><code>getbit &lt;key&gt; &lt;bit-number&gt;</code> 越界返回 0</p>
+</li>
+<li><p><code>bitcount &lt;key&gt;</code> 计算有多少个 1</p>
+</li>
+<li><p><code>bitop &lt;AND | OR | XOR | NOT&gt; destkey key [key ...]</code> 通过 and&#x2F;or&#x2F;xor&#x2F;not 操作 bitmap 并将结果放到 destkey 的 bitmap 中（@a 应该较少使用）</p>
+</li>
+<li><p><code>bitpos key bit [start [end [BYTE | BIT]]]</code> 返回字符串里面第一个被设置为 1 或者 0 的 bit 位 <a target="_blank" rel="noopener" href="https://redis.io/commands/bitpos/">参考</a></p>
+<p>  BYTE | BIT 用来指定 start&#x2F;end 的单位，缺省是 BYTE</p>
+</li>
+</ul>
+<h3 id="hyperLogLogs-HLL"><a href="#hyperLogLogs-HLL" class="headerlink" title="hyperLogLogs, HLL"></a>hyperLogLogs, HLL</h3><p><code>HyperLogLog is a data structure that estimates the cardinality of a set.</code> 用来估计 set 的大小（对比 set 优点是：仅占用大致恒定的内存，最大 12KB，误差在 0.81%）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">pfadd hll a b c d</span></span><br><span class="line">(integer) 1</span><br><span class="line"><span class="meta prompt_">&gt; </span><span class="language-bash">pfcount hll</span></span><br><span class="line">(integer) 4</span><br></pre></td></tr></table></figure>
+
+<p>使用场景：<code>counting unique queries performed by users in a search form every day</code> 计算用户每天在表单中输入的不重复查询条件的数目</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li><p>大部分基础类型的大部分操作都是 O(1) 的，sorted set 是 O(log(N))</p>
+</li>
+<li><p>string 批量操作需要特殊命令 mget,mset，其他的基础类型不需要</p>
+<p> list: lpush, set: sadd, hash: hset</p>
+</li>
+</ol>
+<h2 id="Using-Redis"><a href="#Using-Redis" class="headerlink" title="Using Redis"></a>Using Redis</h2><p>@a 感觉像是 Redis 客户端开发或者直连 Redis 才会用到</p>
+<h3 id="Redis-Pub-x2F-Sub"><a href="#Redis-Pub-x2F-Sub" class="headerlink" title="Redis Pub&#x2F;Sub"></a>Redis Pub&#x2F;Sub</h3><p>command</p>
+<ul>
+<li><p><code>publish &lt;channel&gt; &lt;message&gt;</code> 返回接受到消息的 client 编号</p>
+</li>
+<li><p><code>subscribe &lt;channel&gt; [channel1 channel2 ...]</code></p>
+</li>
+<li><p><code>psubscribe &lt;channel-name-pattern&gt;</code> 订阅 channel 名符合规则的 channel</p>
+</li>
+<li><p><code>unsubscribe &lt;channel&gt; [channel1 channel2 ...]</code></p>
+<p>  redis-cli 无法使用该指令，只能 Ctrl-C 退出</p>
+</li>
+<li><p><code>spublish, ssubscribe, sunsubscribe</code> 针对 <a target="_blank" rel="noopener" href="https://redis.io/docs/manual/pubsub#sharded-pubsub">sharded channel</a> 的操作</p>
+<p>  @a shard 分片。sharded channel 主要使用在集群模式下，可以减少集群中消息的交换，大概是会跟踪到 sub 所在的位置，然后往特定的主机发送</p>
+</li>
+</ul>
+<h2 id="Managing-Redis"><a href="#Managing-Redis" class="headerlink" title="Managing Redis"></a>Managing Redis</h2><h3 id="Security"><a href="#Security" class="headerlink" title="Security"></a>Security</h3><ul>
+<li><p>3.2.0 版本开始，在默认配置的情况下，以 protected mode 启动，只能以 127.0.0.1 访问</p>
+</li>
+<li><p>建议使用 ACL </p>
+<p>  比在 redis.conf 中配置 requirepass 属性更为安全</p>
+</li>
+<li><p>启用 TLS</p>
+</li>
+<li><p>重命名特定指令，例如 config 指令</p>
+</li>
+</ul>
+<h3 id="可用性保证"><a href="#可用性保证" class="headerlink" title="可用性保证"></a>可用性保证</h3><ol>
+<li>HA with Sentinel 哨兵<br>功能：监控、通知、自动故障转移、配置 provider</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://redis.io/docs/management/sentinel/">Fundamental things to know about Sentinel before deploying</a></p>
+<ul>
+<li>三台分离的物理&#x2F;虚拟机</li>
+<li>需要客户端支持</li>
+</ul>
+<ol start="2">
+<li>Replication 镜像</li>
+<li>Scalling 集群</li>
+</ol>
+<h3 id="Persistence-持久化"><a href="#Persistence-持久化" class="headerlink" title="Persistence 持久化"></a>Persistence 持久化</h3><ul>
+<li>RDB(Redis Database) point-in-time snapshots</li>
+<li>AOF(Append Only File) logs every write operation received by the server</li>
+</ul>
+<p>优缺：</p>
+<ul>
+<li>RDB 恢复比 AOF 快</li>
+<li>RDB 可能丢失更多的数据（取决于定时时间）</li>
+<li>RDB 使用 fork() 来执行 snapshots，可能影响性能（数据多的情况下更明显）</li>
+<li>在 log 过大的时候 AOF 会自动重写，而且依然安全（重写出生成当前数据的最简指令）</li>
+<li>AOF 在无意中执行了 <code>flushall</code> 之后恢复的几率更大</li>
+<li>AOF 文件一般比 RDB 大</li>
+</ul>
+<p>可以同时启动，如果同时启动之后需要恢复优先使用 AOF，而且 Redis 可以保证在创建 snapshots 的时候不会执行 AOF 的重写，在执行重写的时候不会创建 snapshots</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Redis/" rel="tag"># Redis</a>
+              <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag"># 中间件</a>
+              <a href="/tags/db/" rel="tag"># db</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/20230305162230/" rel="prev" title="深浅合并 shallow/deep merge">
+                  <i class="fa fa-chevron-left"></i> 深浅合并 shallow/deep merge
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/20230306211546/" rel="next" title="Redis 实践">
+                  Redis 实践 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+
+<div class="copyright">
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Tindoc</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/mist/" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/schemes/muse.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
